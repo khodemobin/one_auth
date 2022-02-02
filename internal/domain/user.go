@@ -13,4 +13,7 @@ type User struct {
 	UpdatedAt *time.Time `json:"updated_at" db:"updated_at"`
 }
 
-type UserRepository interface{}
+type UserRepository interface {
+	FindUserById(id int) (*User, error)
+	FindUserByPhone(phone string) (*User, error)
+}

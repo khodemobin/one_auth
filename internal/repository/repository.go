@@ -7,12 +7,12 @@ import (
 )
 
 type Repository struct {
-	Sample domain.SampleRepository
+	UserRepo domain.UserRepository
 }
 
 func NewRepository(db *sqlx.DB, cache cache.Cache) *Repository {
-	s := NewSampleRepo(db, cache)
+	up := NewUserRepo(db, cache)
 	return &Repository{
-		Sample: s,
+		UserRepo: up,
 	}
 }

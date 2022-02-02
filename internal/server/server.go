@@ -3,9 +3,8 @@ package server
 import (
 	"github.com/gofiber/fiber/v2"
 	fiberLogger "github.com/gofiber/fiber/v2/middleware/logger"
-	"github.com/gofiber/fiber/v2/middleware/recover"
-
 	handler "github.com/khodemobin/pilo/auth/internal/server/handler"
+
 	"github.com/khodemobin/pilo/auth/internal/service"
 	"github.com/khodemobin/pilo/auth/pkg/logger"
 )
@@ -21,8 +20,8 @@ func New(service *service.Service, isLocal bool, logger logger.Logger) *Server {
 			Prefork: !isLocal,
 		}),
 		authHandler: &handler.AuthHandler{
-			Logger:  logger,
-			Service: service.AuthService,
+			Logger:      logger,
+			AuthService: service.AuthService,
 		},
 	}
 }
@@ -30,7 +29,7 @@ func New(service *service.Service, isLocal bool, logger logger.Logger) *Server {
 func (r *Server) Start(isLocal bool, port string) error {
 	if isLocal {
 		r.app.Use(fiberLogger.New())
-		r.app.Use(recover.New())
+		// r.app.Use(recover.New())
 	}
 
 	r.routing()
@@ -42,13 +41,16 @@ func (r *Server) Shutdown() error {
 }
 
 func (r *Server) routing() {
-	r.app.Post("/v1/login", r.authHandler.Login)
-	r.app.Post("/v1/check", r.authHandler.Check)
+	api := r.app.Group("/api")
+	v1 := api.Group("/v1")
 
-	r.app.Post("/v1/register", r.authHandler.Login)
-	r.app.Post("/v1/register/verify", r.authHandler.Login)
-	r.app.Post("/v1/register/info", r.authHandler.Login)
+	v1.Post("/login", r.authHandler.Login)
+	v1.Post("/check", r.authHandler.Check)
 
-	r.app.Post("/v1/recovery", r.authHandler.Login)
-	r.app.Post("/v1/recovery/verify", r.authHandler.Login)
+	v1.Post("/register", r.authHandler.Login)
+	v1.Post("/register/verify", r.authHandler.Login)
+	v1.Post("/register/info", r.authHandler.Login)
+
+	v1.Post("/recovery", r.authHandler.Login)
+	v1.Post("/recovery/verify", r.authHandler.Login)
 }

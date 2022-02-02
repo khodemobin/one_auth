@@ -1,6 +1,7 @@
 package service
 
 import (
+	"github.com/khodemobin/pilo/auth/internal/config"
 	"github.com/khodemobin/pilo/auth/internal/domain"
 	"github.com/khodemobin/pilo/auth/internal/repository"
 	"github.com/khodemobin/pilo/auth/pkg/logger"
@@ -11,8 +12,8 @@ type Service struct {
 	AuthService domain.AuthService
 }
 
-func NewService(repo *repository.Repository, logger logger.Logger, msg messager.Messager) *Service {
-	auth := NewAuthService(logger)
+func NewService(repo *repository.Repository, logger *logger.Logger, msg messager.Messager, cfg *config.Config) *Service {
+	auth := NewAuthService(repo, logger, cfg)
 
 	return &Service{
 		AuthService: auth,

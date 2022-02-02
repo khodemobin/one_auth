@@ -43,7 +43,7 @@ func Execute() {
 	defer cache.Close()
 
 	repository := repository.NewRepository(db.DB, cache)
-	service := service.NewService(repository, logger, msg)
+	service := service.NewService(repository, &logger, msg, config)
 
 	// start server
 	restServer := server.New(service, helper.IsLocal(config), logger)
