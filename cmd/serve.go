@@ -20,9 +20,21 @@ import (
 	"github.com/khodemobin/pilo/auth/pkg/messager/rabbit"
 	"github.com/khodemobin/pilo/auth/pkg/mysql"
 	"github.com/khodemobin/pilo/auth/pkg/redis"
+	"github.com/spf13/cobra"
 )
 
-func Execute() {
+func ServeCommand() *cobra.Command {
+	cmdServe := &cobra.Command{
+		Use:   "serve",
+		Short: "Serve application",
+		Run: func(cmd *cobra.Command, args []string) {
+			execute()
+		},
+	}
+	return cmdServe
+}
+
+func execute() {
 	// init main components
 	config := config.New()
 

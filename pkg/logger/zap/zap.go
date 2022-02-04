@@ -33,18 +33,22 @@ func New() logger.Logger {
 	return &log{sugarLogger}
 }
 
-func (l *log) Error(err error) {
-	l.zap.Error(err.Error())
+func (log *log) Error(err error) {
+	l.Println(err.Error())
+	log.zap.Error(err.Error())
 }
 
-func (l *log) Fatal(err error) {
-	l.zap.Fatal(err.Error())
+func (log *log) Fatal(err error) {
+	l.Println(err.Error())
+	log.zap.Fatal(err.Error())
 }
 
-func (l *log) Warn(msg string) {
-	l.zap.Warn(msg)
+func (log *log) Warn(msg string) {
+	l.Println(msg)
+	log.zap.Warn(msg)
 }
 
-func (l *log) Info(msg string) {
-	l.zap.Info(msg)
+func (log *log) Info(msg string) {
+	l.Println(msg)
+	log.zap.Info(msg)
 }
