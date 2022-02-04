@@ -7,9 +7,8 @@ import (
 var validate = validator.New()
 
 type ErrorResponse struct {
-	FailedField string
-	Tag         string
-	Value       string
+	Field string `json:"field"`
+	Tag   string `json:"tag"`
 }
 
 func Validate(s interface{}) []*ErrorResponse {
@@ -18,9 +17,8 @@ func Validate(s interface{}) []*ErrorResponse {
 	if err != nil {
 		for _, err := range err.(validator.ValidationErrors) {
 			var element ErrorResponse
-			element.FailedField = err.StructNamespace()
+			element.Field = err.Field()
 			element.Tag = err.Tag()
-			element.Value = err.Param()
 			errors = append(errors, &element)
 		}
 	}

@@ -15,9 +15,8 @@ type AuthHandler struct {
 
 func (h *AuthHandler) Login(c *fiber.Ctx) error {
 	req := new(request.LoginRequest)
-
 	if err := c.BodyParser(req); err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"message": err.Error(),
 		})
 	}
@@ -29,7 +28,9 @@ func (h *AuthHandler) Login(c *fiber.Ctx) error {
 
 	auth, err := h.AuthService.Login(c.Context(), req.Phone, req.Password)
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(err.Error())
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message": err.Error(),
+		})
 	}
 
 	res := response.NewAuthResource(auth)

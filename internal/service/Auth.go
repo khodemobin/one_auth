@@ -30,21 +30,21 @@ func NewAuthService(repo *repository.Repository, logger *logger.Logger, cfg *con
 func (a *auth) Login(ctx context.Context, phone, password string) (*domain.Auth, error) {
 	user, err := a.repo.UserRepo.FindUserByPhone(phone)
 	if err != nil {
-		return nil, &domain.AuthError{}
+		return nil, errors.New("invalid credentials")
 	}
 
 	if !encrypt.Check(password, *user.Password) {
-		return nil, &domain.AuthError{}
+		return nil, errors.New("invalid credentials")
 	}
 
 	ttl, err := strconv.Atoi(a.cfg.App.JwtTTL)
 	if err != nil {
-		return nil, errors.New("internal error, can not convert jwt time to int type")
+		panic("internal error, can not convert jwt time to int type")
 	}
 
 	token, err := encrypt.GenerateAccessToken(user, time.Second*time.Duration(ttl), a.cfg.App.JwtSecret)
 	if err != nil {
-		return nil, errors.New("internal error, can not create tok")
+		panic("internal error, can not create token")
 	}
 
 	// TODO add events log and back and security
