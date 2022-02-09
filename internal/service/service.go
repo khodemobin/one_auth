@@ -12,7 +12,7 @@ type Service struct {
 	AuthService domain.AuthService
 }
 
-func NewService(repo *repository.Repository, logger *logger.Logger, msg messager.Messager, cfg *config.Config) *Service {
+func NewService(repo *repository.Repository, logger logger.Logger, msg messager.Messager, cfg *config.Config) *Service {
 	auth := NewAuthService(repo, logger, cfg)
 
 	return &Service{

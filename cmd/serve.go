@@ -13,12 +13,12 @@ import (
 	"github.com/khodemobin/pilo/auth/internal/repository"
 	"github.com/khodemobin/pilo/auth/internal/server"
 	"github.com/khodemobin/pilo/auth/internal/service"
+	"github.com/khodemobin/pilo/auth/pkg/db"
 	"github.com/khodemobin/pilo/auth/pkg/helper"
 	"github.com/khodemobin/pilo/auth/pkg/logger"
 	"github.com/khodemobin/pilo/auth/pkg/logger/sentry"
 	"github.com/khodemobin/pilo/auth/pkg/logger/zap"
 	"github.com/khodemobin/pilo/auth/pkg/messager/rabbit"
-	"github.com/khodemobin/pilo/auth/pkg/mysql"
 	"github.com/khodemobin/pilo/auth/pkg/redis"
 	"github.com/spf13/cobra"
 )
@@ -28,13 +28,13 @@ func ServeCommand() *cobra.Command {
 		Use:   "serve",
 		Short: "Serve application",
 		Run: func(cmd *cobra.Command, args []string) {
-			execute()
+			Execute()
 		},
 	}
 	return cmdServe
 }
 
-func execute() {
+func Execute() {
 	// init main components
 	config := config.New()
 
@@ -46,7 +46,7 @@ func execute() {
 	}
 
 	msg := rabbit.New(config, logger)
-	db := mysql.New(config, logger)
+	db := db.New(config, logger)
 	redis := redis.New(config, logger)
 
 	cache := cache.New(redis, logger)
@@ -54,8 +54,8 @@ func execute() {
 	defer db.Close()
 	defer cache.Close()
 
-	repository := repository.NewRepository(db.DB, cache)
-	service := service.NewService(repository, &logger, msg, config)
+	repository := repository.NewRepository(db.DB, cache, config)
+	service := service.NewService(repository, logger, msg, config)
 
 	// start server
 	restServer := server.New(service, helper.IsLocal(config), logger)

@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"database/sql"
-	"fmt"
+	"github.com/khodemobin/pilo/auth/pkg/db"
 
 	"github.com/khodemobin/pilo/auth/internal/config"
 	"github.com/khodemobin/pilo/auth/pkg/helper"
@@ -27,18 +27,17 @@ func MigrateCommand() *cobra.Command {
 		Short: "Migrate database [ up & down & create]",
 		Args:  cobra.MinimumNArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			db, _ := sql.Open("mysql", dsn(config))
+			sql, _ := sql.Open("mysql", db.Dsn(config))
 			dir := "migrations"
-			goose.SetDialect("mysql")
-			if err := goose.Run(args[0], db, dir, args[1:]...); err != nil {
+			err := goose.SetDialect("mysql")
+			if err != nil {
+				logger.Fatal(err)
+			}
+			if err := goose.Run(args[0], sql, dir, args[1:]...); err != nil {
 				logger.Fatal(err)
 			}
 		},
 	}
 
 	return cmdMigrate
-}
-
-func dsn(c *config.Config) string {
-	return fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?multiStatements=true", c.DB.User, c.DB.Password, c.DB.Host, c.DB.Port, c.DB.Database)
 }

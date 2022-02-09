@@ -3,23 +3,21 @@ package service
 import (
 	"context"
 	"errors"
-	"strconv"
-	"time"
-
 	"github.com/khodemobin/pilo/auth/internal/config"
 	"github.com/khodemobin/pilo/auth/internal/domain"
 	"github.com/khodemobin/pilo/auth/internal/repository"
 	"github.com/khodemobin/pilo/auth/pkg/encrypt"
 	"github.com/khodemobin/pilo/auth/pkg/logger"
+	"strconv"
 )
 
 type auth struct {
 	repo   *repository.Repository
-	logger *logger.Logger
+	logger logger.Logger
 	cfg    *config.Config
 }
 
-func NewAuthService(repo *repository.Repository, logger *logger.Logger, cfg *config.Config) domain.AuthService {
+func NewAuthService(repo *repository.Repository, logger logger.Logger, cfg *config.Config) domain.AuthService {
 	return &auth{
 		repo:   repo,
 		logger: logger,
@@ -30,19 +28,29 @@ func NewAuthService(repo *repository.Repository, logger *logger.Logger, cfg *con
 func (a *auth) Login(ctx context.Context, phone, password string) (*domain.Auth, error) {
 	user, err := a.repo.UserRepo.FindUserByPhone(phone)
 	if err != nil {
+		panic(err)
+	}
+
+	if user.ID == 0 {
 		return nil, errors.New("invalid credentials")
 	}
 
-	if !encrypt.Check(password, *user.Password) {
+	if !encrypt.Check(*user.Password, password) {
 		return nil, errors.New("invalid credentials")
 	}
 
 	ttl, err := strconv.Atoi(a.cfg.App.JwtTTL)
 	if err != nil {
+		// TODO do not use panic. handle custom error 500
 		panic("internal error, can not convert jwt time to int type")
 	}
 
-	token, err := encrypt.GenerateAccessToken(user, time.Second*time.Duration(ttl), a.cfg.App.JwtSecret)
+	token, err := a.repo.TokenRepo.Create(ttl, user)
+	if err != nil {
+		panic("internal error, can not create token")
+	}
+
+	_, err = a.repo.UserRepo.UpdateUserLastSeen(user)
 	if err != nil {
 		panic("internal error, can not create token")
 	}
@@ -50,7 +58,9 @@ func (a *auth) Login(ctx context.Context, phone, password string) (*domain.Auth,
 	// TODO add events log and back and security
 
 	return &domain.Auth{
-		Token: token,
+		Token:     token.Token,
+		ExpiresIn: ttl,
+		UserID:    user.ID,
 	}, nil
 }
 

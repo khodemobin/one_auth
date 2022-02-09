@@ -8,10 +8,11 @@ import (
 )
 
 type App struct {
-	Port      string
-	Env       string
-	JwtSecret string
-	JwtTTL    string
+	Port          string
+	Env           string
+	JwtSecret     string
+	JwtTTL        string
+	OperatorToken string
 }
 
 type DB struct {
@@ -54,10 +55,11 @@ func New() *Config {
 
 	return &Config{
 		App: App{
-			Port:      os.Getenv("APP_PORT"),
-			Env:       os.Getenv("APP_ENV"),
-			JwtSecret: os.Getenv("JWT_SECRET"),
-			JwtTTL:    os.Getenv("JWT_TTL"),
+			Port:          os.Getenv("APP_PORT"),
+			Env:           os.Getenv("APP_ENV"),
+			JwtSecret:     os.Getenv("JWT_SECRET"),
+			JwtTTL:        os.Getenv("JWT_TTL"),
+			OperatorToken: os.Getenv("OPERATOR_TOKEN"),
 		},
 		DB: DB{
 			Host:     os.Getenv("DB_HOST"),

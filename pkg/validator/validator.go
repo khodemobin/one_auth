@@ -1,8 +1,6 @@
-package request
+package validator
 
-import (
-	"github.com/go-playground/validator/v10"
-)
+import "github.com/go-playground/validator/v10"
 
 var validate = validator.New()
 
@@ -11,7 +9,7 @@ type ErrorResponse struct {
 	Tag   string `json:"tag"`
 }
 
-func Validate(s interface{}) []*ErrorResponse {
+func Check(s interface{}) []*ErrorResponse {
 	var errors []*ErrorResponse
 	err := validate.Struct(s)
 	if err != nil {
