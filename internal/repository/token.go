@@ -1,9 +1,9 @@
 package repository
 
 import (
-	"github.com/khodemobin/pilo/auth/internal/cache"
-	"github.com/khodemobin/pilo/auth/internal/config"
+	"context"
 	"github.com/khodemobin/pilo/auth/internal/domain"
+	"github.com/khodemobin/pilo/auth/pkg/cache"
 	"github.com/khodemobin/pilo/auth/pkg/encrypt"
 	"gorm.io/gorm"
 	"time"
@@ -12,19 +12,17 @@ import (
 type token struct {
 	db    *gorm.DB
 	cache cache.Cache
-	cfg   *config.Config
 }
 
-func NewTokenRepo(db *gorm.DB, cache cache.Cache, cfg *config.Config) domain.TokenRepository {
+func NewTokenRepo(db *gorm.DB, cache cache.Cache) domain.TokenRepository {
 	return &token{
 		db,
 		cache,
-		cfg,
 	}
 }
 
-func (t token) Create(ttl int, user *domain.User) (*domain.Token, error) {
-	token, err := encrypt.GenerateAccessToken(user, time.Second*time.Duration(ttl), t.cfg.App.JwtSecret)
+func (t token) Create(ctx context.Context, ttl int, user *domain.User) (*domain.Token, error) {
+	token, err := encrypt.GenerateAccessToken(user, time.Second*time.Duration(ttl))
 	if err != nil {
 		return nil, err
 	}
@@ -39,6 +37,6 @@ func (t token) Create(ttl int, user *domain.User) (*domain.Token, error) {
 	return tokenModel, err
 }
 
-func (t token) Revoke(token *domain.Token) error {
+func (t token) Revoke(ctx context.Context, token *domain.Token) error {
 	return nil
 }

@@ -3,12 +3,12 @@ package cmd
 import (
 	"errors"
 	"fmt"
+	"github.com/khodemobin/pilo/auth/pkg/cache/redis"
 	"log"
 	"os"
 	"os/signal"
 	"syscall"
 
-	"github.com/khodemobin/pilo/auth/internal/cache"
 	"github.com/khodemobin/pilo/auth/internal/config"
 	"github.com/khodemobin/pilo/auth/internal/repository"
 	"github.com/khodemobin/pilo/auth/internal/server"
@@ -19,7 +19,6 @@ import (
 	"github.com/khodemobin/pilo/auth/pkg/logger/sentry"
 	"github.com/khodemobin/pilo/auth/pkg/logger/zap"
 	"github.com/khodemobin/pilo/auth/pkg/messager/rabbit"
-	"github.com/khodemobin/pilo/auth/pkg/redis"
 	"github.com/spf13/cobra"
 )
 
@@ -49,12 +48,10 @@ func Execute() {
 	db := db.New(config, logger)
 	redis := redis.New(config, logger)
 
-	cache := cache.New(redis, logger)
-
 	defer db.Close()
-	defer cache.Close()
+	defer redis.Close()
 
-	repository := repository.NewRepository(db.DB, cache, config)
+	repository := repository.NewRepository(db.DB, redis)
 	service := service.NewService(repository, logger, msg, config)
 
 	// start server

@@ -1,10 +1,11 @@
 package repository
 
 import (
+	"context"
 	"errors"
+	"github.com/khodemobin/pilo/auth/pkg/cache"
 	"time"
 
-	"github.com/khodemobin/pilo/auth/internal/cache"
 	"github.com/khodemobin/pilo/auth/internal/domain"
 	"gorm.io/gorm"
 )
@@ -21,9 +22,9 @@ func NewUserRepo(db *gorm.DB, cache cache.Cache) domain.UserRepository {
 	}
 }
 
-func (u *userRepo) FindUserById(id int) (*domain.User, error) {
+func (u *userRepo) FindUserById(ctx context.Context, id int) (*domain.User, error) {
 	var user *domain.User
-	err := u.db.Where(&domain.User{Model: gorm.Model{ID: uint(id)}, Status: domain.USER_STATUS_ACTIVE}).First(&user).Error
+	err := u.db.Where(&domain.User{ID: uint(id), Status: domain.USER_STATUS_ACTIVE}).First(&user).Error
 	if err == nil || errors.Is(err, gorm.ErrRecordNotFound) {
 		return user, nil
 	}
@@ -31,7 +32,7 @@ func (u *userRepo) FindUserById(id int) (*domain.User, error) {
 	return nil, err
 }
 
-func (u *userRepo) FindUserByPhone(phone string) (*domain.User, error) {
+func (u *userRepo) FindUserByPhone(ctx context.Context, phone string) (*domain.User, error) {
 	var user *domain.User
 	err := u.db.Where(&domain.User{Phone: phone, Status: domain.USER_STATUS_ACTIVE}).First(&user).Error
 	if err == nil || errors.Is(err, gorm.ErrRecordNotFound) {
@@ -41,9 +42,9 @@ func (u *userRepo) FindUserByPhone(phone string) (*domain.User, error) {
 	return nil, err
 }
 
-func (u *userRepo) UpdateUserLastSeen(user *domain.User) (*domain.User, error) {
+func (u *userRepo) UpdateUserLastSeen(ctx context.Context, user *domain.User) error {
 	now := time.Now()
 	user.LastSignInAt = &now
 	err := u.db.Save(user).Error
-	return user, err
+	return err
 }

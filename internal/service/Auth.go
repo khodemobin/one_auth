@@ -26,7 +26,7 @@ func NewAuthService(repo *repository.Repository, logger logger.Logger, cfg *conf
 }
 
 func (a *auth) Login(ctx context.Context, phone, password string) (*domain.Auth, error) {
-	user, err := a.repo.UserRepo.FindUserByPhone(phone)
+	user, err := a.repo.UserRepo.FindUserByPhone(ctx, phone)
 	if err != nil {
 		panic(err)
 	}
@@ -45,12 +45,12 @@ func (a *auth) Login(ctx context.Context, phone, password string) (*domain.Auth,
 		panic("internal error, can not convert jwt time to int type")
 	}
 
-	token, err := a.repo.TokenRepo.Create(ttl, user)
+	token, err := a.repo.TokenRepo.Create(ctx, ttl, user)
 	if err != nil {
 		panic("internal error, can not create token")
 	}
 
-	_, err = a.repo.UserRepo.UpdateUserLastSeen(user)
+	err = a.repo.UserRepo.UpdateUserLastSeen(ctx, user)
 	if err != nil {
 		panic("internal error, can not create token")
 	}

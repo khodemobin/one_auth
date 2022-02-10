@@ -20,7 +20,7 @@ type rabbit struct {
 	ch     *rabbitmq.Channel
 }
 
-func New(cfg *config.Config, logger logger.Logger) messager.Messager {
+func New(cfg *config.Config, logger logger.Logger) messager.Messenger {
 	return &rabbit{
 		logger: logger,
 		cfg:    cfg,

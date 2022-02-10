@@ -1,18 +1,21 @@
 package test_mock
 
 import (
-	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/khodemobin/pilo/auth/internal/config"
+	"github.com/khodemobin/pilo/auth/pkg/cache"
+	"github.com/khodemobin/pilo/auth/pkg/cache/redis"
+	"github.com/khodemobin/pilo/auth/pkg/db"
+	"github.com/khodemobin/pilo/auth/pkg/logger"
+	"github.com/khodemobin/pilo/auth/pkg/logger/syslog"
 	"gorm.io/gorm"
+	"testing"
 )
 
-func NewMock() (*gorm.DB, sqlmock.Sqlmock) {
-	// mockDB, mock, err := sqlmock.New()
-	// db := sql.NewDb(mockDB, "sqlmock")
+func NewMock(t *testing.T) (*gorm.DB, cache.Cache, logger.Logger) {
+	logger := syslog.New()
+	cfg := config.GetConfig()
+	db := db.New(cfg, logger)
+	redis := redis.NewTest(t, logger)
 
-	// if err != nil {
-	// 	log.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
-	// }
-
-	// return db, mock
-	return nil, nil
+	return db.DB, redis, logger
 }

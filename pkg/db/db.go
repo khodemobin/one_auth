@@ -2,13 +2,12 @@ package db
 
 import (
 	"fmt"
-	"log"
-
 	"github.com/khodemobin/pilo/auth/internal/config"
 	"github.com/khodemobin/pilo/auth/pkg/logger"
-	"gorm.io/gorm"
-
 	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
+	l "gorm.io/gorm/logger"
+	"log"
 )
 
 type Mysql struct {
@@ -17,7 +16,10 @@ type Mysql struct {
 }
 
 func New(cfg *config.Config, logger logger.Logger) *Mysql {
-	db, err := gorm.Open(mysql.Open(Dsn(cfg)), &gorm.Config{})
+	db, err := gorm.Open(mysql.Open(Dsn(cfg)), &gorm.Config{
+		Logger: l.Default.LogMode(l.Silent),
+	})
+
 	if err != nil {
 		logger.Fatal(err)
 	}

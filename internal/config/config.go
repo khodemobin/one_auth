@@ -3,6 +3,8 @@ package config
 import (
 	"log"
 	"os"
+	"path/filepath"
+	"runtime"
 
 	"github.com/joho/godotenv"
 )
@@ -50,10 +52,12 @@ type Config struct {
 	Redis  Redis
 }
 
+var config *Config
+
 func New() *Config {
 	readConfig()
 
-	return &Config{
+	config = &Config{
 		App: App{
 			Port:          os.Getenv("APP_PORT"),
 			Env:           os.Getenv("APP_ENV"),
@@ -85,11 +89,22 @@ func New() *Config {
 			Database: os.Getenv("REDIS_DATABASE"),
 		},
 	}
+
+	return config
 }
 
 func readConfig() {
-	err := godotenv.Load()
+	_, b, _, _ := runtime.Caller(0)
+	path := filepath.Join(filepath.Dir(b), "../..")
+	err := godotenv.Load(path + "/.env")
 	if err != nil {
 		log.Println("error load config", err)
 	}
+}
+
+func GetConfig() *Config {
+	if config == nil {
+		New()
+	}
+	return config
 }

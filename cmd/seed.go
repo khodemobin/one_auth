@@ -27,24 +27,9 @@ func SeedCommand() *cobra.Command {
 		Run: func(cmd *cobra.Command, args []string) {
 			db := db.New(config, logger)
 			pass, _ := encrypt.Hash("123456")
-			user := &domain.User{
-				Phone:              "09384642495",
-				Password:           &pass,
-				ConfirmationToken:  nil,
-				ConfirmationSentAt: nil,
-				ConfirmedAt:        nil,
-				RecoveryToken:      nil,
-				RecoverySentAt:     nil,
-				PhoneChangeToken:   nil,
-				PhoneChange:        nil,
-				PhoneChangeSentAt:  nil,
-				Role:               nil,
-				Status:             domain.USER_STATUS_ACTIVE,
-				IsSuperAdmin:       false,
-				LastSignInAt:       nil,
-				Tokens:             nil,
-			}
-
+			user, _ := domain.User{}.SeedUser()
+			user.Phone = "09384642495"
+			user.Phone = pass
 			db.DB.Create(user)
 		},
 	}
