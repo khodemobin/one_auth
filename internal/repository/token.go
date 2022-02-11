@@ -21,7 +21,7 @@ func NewTokenRepo(db *gorm.DB, cache cache.Cache) domain.TokenRepository {
 	}
 }
 
-func (t token) Create(ctx context.Context, ttl int, user *domain.User) (*domain.Token, error) {
+func (t token) CreateToken(ctx context.Context, ttl int, user *domain.User) (*domain.Token, error) {
 	token, err := encrypt.GenerateAccessToken(user, time.Second*time.Duration(ttl))
 	if err != nil {
 		return nil, err
@@ -37,6 +37,6 @@ func (t token) Create(ctx context.Context, ttl int, user *domain.User) (*domain.
 	return tokenModel, err
 }
 
-func (t token) Revoke(ctx context.Context, token *domain.Token) error {
+func (t token) RevokeToken(ctx context.Context, token *domain.Token) error {
 	return nil
 }

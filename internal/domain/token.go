@@ -17,6 +17,6 @@ type Token struct {
 }
 
 type TokenRepository interface {
-	Create(ctx context.Context, ttl int, user *User) (*Token, error)
-	Revoke(ctx context.Context, token *Token) error
+	CreateToken(ctx context.Context, ttl int, user *User) (*Token, error)
+	RevokeToken(ctx context.Context, token *Token) error
 }

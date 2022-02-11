@@ -11,8 +11,8 @@ import (
 	"time"
 )
 
-func TestFindUserById(t *testing.T) {
-	user, repo, db := initFake(t)
+func Test_Repo_FindUserById(t *testing.T) {
+	user, repo, db := initFakeUser(t)
 
 	t.Run("test find right user by id", func(t *testing.T) {
 		u, err := repo.FindUserById(context.Background(), int(user.ID))
@@ -29,8 +29,8 @@ func TestFindUserById(t *testing.T) {
 	db.Delete(&user)
 }
 
-func TestFindUserByPhone(t *testing.T) {
-	user, repo, db := initFake(t)
+func Test_Repo_FindUserByPhone(t *testing.T) {
+	user, repo, db := initFakeUser(t)
 
 	t.Run("test find right user by phone", func(t *testing.T) {
 		u, err := repo.FindUserByPhone(context.Background(), user.Phone)
@@ -47,8 +47,8 @@ func TestFindUserByPhone(t *testing.T) {
 	db.Delete(&user)
 }
 
-func TestUpdateUserLastSeen(t *testing.T) {
-	user, repo, db := initFake(t)
+func Test_Repo_UpdateUserLastSeen(t *testing.T) {
+	user, repo, db := initFakeUser(t)
 	t.Run("test update user last seen after login", func(t *testing.T) {
 		// last seen should be at last 2min before and 2 min later from now after update
 		err := repo.UpdateUserLastSeen(context.Background(), user)
@@ -67,7 +67,7 @@ func TestUpdateUserLastSeen(t *testing.T) {
 	db.Delete(&user)
 }
 
-func initFake(t *testing.T) (*domain.User, domain.UserRepository, *gorm.DB) {
+func initFakeUser(t *testing.T) (*domain.User, domain.UserRepository, *gorm.DB) {
 	db, cache, _ := test_mock.NewMock(t)
 	user, _ := domain.User{}.SeedUser()
 	err := db.Create(user).Error
