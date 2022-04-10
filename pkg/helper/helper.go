@@ -12,9 +12,9 @@ func IsLocal(cfg *config.Config) bool {
 }
 
 func ToMD5(s string) string {
-	hasher := md5.New()
-	hasher.Write([]byte(s))
-	return hex.EncodeToString(hasher.Sum(nil))
+	hashes := md5.New()
+	hashes.Write([]byte(s))
+	return hex.EncodeToString(hashes.Sum(nil))
 }
 
 func HasString(list []string, find string) bool {
@@ -24,4 +24,22 @@ func HasString(list []string, find string) bool {
 		}
 	}
 	return false
+}
+
+func DefaultResponse(data interface{}, message string, code int) struct {
+	Data    interface{} `json:"data"`
+	Code    int         `json:"code"`
+	Message string      `json:"message"`
+} {
+	r := struct {
+		Data    interface{} `json:"data"`
+		Code    int         `json:"code"`
+		Message string      `json:"message"`
+	}{
+		Data:    data,
+		Code:    code,
+		Message: message,
+	}
+
+	return r
 }

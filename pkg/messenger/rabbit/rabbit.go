@@ -7,7 +7,7 @@ import (
 	"github.com/isayme/go-amqp-reconnect/rabbitmq"
 	"github.com/khodemobin/pilo/auth/internal/config"
 	"github.com/khodemobin/pilo/auth/pkg/logger"
-	"github.com/khodemobin/pilo/auth/pkg/messager"
+	"github.com/khodemobin/pilo/auth/pkg/messenger"
 	"github.com/streadway/amqp"
 )
 
@@ -20,7 +20,7 @@ type rabbit struct {
 	ch     *rabbitmq.Channel
 }
 
-func New(cfg *config.Config, logger logger.Logger) messager.Messenger {
+func New(cfg *config.Config, logger logger.Logger) messenger.Messenger {
 	return &rabbit{
 		logger: logger,
 		cfg:    cfg,

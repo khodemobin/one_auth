@@ -1,4 +1,4 @@
-package messager
+package messenger
 
 type Messenger interface {
 	Write(message, topic string) error

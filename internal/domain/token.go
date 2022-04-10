@@ -2,8 +2,9 @@ package domain
 
 import (
 	"context"
-	"gorm.io/gorm"
 	"time"
+
+	"gorm.io/gorm"
 )
 
 type Token struct {
@@ -19,4 +20,8 @@ type Token struct {
 type TokenRepository interface {
 	CreateToken(ctx context.Context, ttl int, user *User) (*Token, error)
 	RevokeToken(ctx context.Context, token *Token) error
+}
+
+func (Token) TableName() string {
+	return "refresh_tokens"
 }

@@ -1,12 +1,14 @@
 module github.com/khodemobin/pilo/auth
 
-go 1.17
+go 1.18
 
 require (
 	github.com/DATA-DOG/go-sqlmock v1.5.0
 	github.com/alicebob/miniredis/v2 v2.18.0
+	github.com/bxcodec/faker/v3 v3.7.0
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/getsentry/sentry-go v0.12.0
+	github.com/go-errors/errors v1.0.1
 	github.com/go-playground/validator/v10 v10.10.0
 	github.com/go-redis/redis/v8 v8.11.4
 	github.com/gofiber/fiber/v2 v2.26.0
@@ -25,7 +27,6 @@ require (
 require (
 	github.com/alicebob/gopher-json v0.0.0-20200520072559-a9ecdc9d1d3a // indirect
 	github.com/andybalholm/brotli v1.0.4 // indirect
-	github.com/bxcodec/faker/v3 v3.7.0 // indirect
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect

@@ -2,26 +2,27 @@ package repository_test
 
 import (
 	"context"
+	"testing"
+	"time"
+
 	"github.com/khodemobin/pilo/auth/internal/domain"
 	"github.com/khodemobin/pilo/auth/internal/repository"
 	"github.com/khodemobin/pilo/auth/pkg/test_mock"
 	"github.com/stretchr/testify/assert"
 	"gorm.io/gorm"
-	"testing"
-	"time"
 )
 
 func Test_Repo_FindUserById(t *testing.T) {
 	user, repo, db := initFakeUser(t)
 
 	t.Run("test find right user by id", func(t *testing.T) {
-		u, err := repo.FindUserById(context.Background(), int(user.ID))
+		u, err := repo.FindUserById(context.Background(), int(user.ID), 1)
 		assert.NoError(t, err)
 		assert.Equal(t, u.ID, user.ID)
 	})
 
 	t.Run("test not found user by wrong id", func(t *testing.T) {
-		u, err := repo.FindUserById(context.Background(), 123123)
+		u, err := repo.FindUserById(context.Background(), 123123, 0)
 		assert.Empty(t, u)
 		assert.NoError(t, err)
 	})
@@ -33,13 +34,13 @@ func Test_Repo_FindUserByPhone(t *testing.T) {
 	user, repo, db := initFakeUser(t)
 
 	t.Run("test find right user by phone", func(t *testing.T) {
-		u, err := repo.FindUserByPhone(context.Background(), user.Phone)
+		u, err := repo.FindUserByPhone(context.Background(), user.Phone, 1)
 		assert.NoError(t, err)
 		assert.Equal(t, u.ID, user.ID)
 	})
 
 	t.Run("test not found user by wrong phone", func(t *testing.T) {
-		u, err := repo.FindUserByPhone(context.Background(), "123123")
+		u, err := repo.FindUserByPhone(context.Background(), "123123", 0)
 		assert.Empty(t, u)
 		assert.NoError(t, err)
 	})

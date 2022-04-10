@@ -2,11 +2,13 @@ package redis
 
 import (
 	"context"
+	"log"
+	"strconv"
+	"testing"
+
 	"github.com/alicebob/miniredis/v2"
 	"github.com/khodemobin/pilo/auth/pkg/cache"
 	"github.com/khodemobin/pilo/auth/pkg/helper"
-	"strconv"
-	"testing"
 
 	r "github.com/go-redis/redis/v8"
 	"github.com/khodemobin/pilo/auth/internal/config"
@@ -35,10 +37,12 @@ func New(cfg *config.Config, logger logger.Logger) cache.Cache {
 		DB:       db,
 		PoolSize: poolSize,
 	})
+	log.Println(r.Ping(context.Background()))
 
 	return &client{
 		rc:     r,
 		logger: logger,
+		ctx:    context.Background(),
 	}
 }
 
@@ -47,7 +51,6 @@ func NewTest(t *testing.T, logger logger.Logger) cache.Cache {
 	r := r.NewClient(&r.Options{
 		Addr: s.Addr(),
 	})
-
 	return &client{
 		rc:     r,
 		logger: logger,

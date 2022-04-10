@@ -20,5 +20,6 @@ func Check(s interface{}) []*ErrorResponse {
 			errors = append(errors, &element)
 		}
 	}
+
 	return errors
 }

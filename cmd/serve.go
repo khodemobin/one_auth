@@ -3,11 +3,12 @@ package cmd
 import (
 	"errors"
 	"fmt"
-	"github.com/khodemobin/pilo/auth/pkg/cache/redis"
 	"log"
 	"os"
 	"os/signal"
 	"syscall"
+
+	"github.com/khodemobin/pilo/auth/pkg/cache/redis"
 
 	"github.com/khodemobin/pilo/auth/internal/config"
 	"github.com/khodemobin/pilo/auth/internal/repository"
@@ -18,7 +19,7 @@ import (
 	"github.com/khodemobin/pilo/auth/pkg/logger"
 	"github.com/khodemobin/pilo/auth/pkg/logger/sentry"
 	"github.com/khodemobin/pilo/auth/pkg/logger/zap"
-	"github.com/khodemobin/pilo/auth/pkg/messager/rabbit"
+	"github.com/khodemobin/pilo/auth/pkg/messenger/rabbit"
 	"github.com/spf13/cobra"
 )
 
@@ -52,7 +53,7 @@ func Execute() {
 	defer redis.Close()
 
 	repository := repository.NewRepository(db.DB, redis)
-	service := service.NewService(repository, logger, msg, config)
+	service := service.NewService(repository, logger, redis, msg, config)
 
 	// start server
 	restServer := server.New(service, helper.IsLocal(config), logger)
