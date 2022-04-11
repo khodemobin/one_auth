@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 	"strconv"
+	"time"
 
 	"github.com/go-errors/errors"
 	"github.com/khodemobin/pilo/auth/internal/config"
@@ -74,20 +75,32 @@ func (r register) RegisterVerify(ctx context.Context, phone string, code string)
 		panic(err)
 	}
 
+	user = r.createUser(ctx, phone)
 	token, err := r.repo.TokenRepo.CreateToken(ctx, ttl, user)
 	if err != nil {
-		panic("internal error, can not create token")
+		panic(err)
 	}
 
-	//if err = r.repo.UserRepo.UpdateUserLastSeen(ctx, user); err != nil {
-	//	panic(err)
-	//}
-
 	// TODO add event log and back and security
-
 	return &domain.Login{
 		Token:     token.Token,
 		ExpiresIn: ttl,
-		UserID:    user.ID,
+		ID:        user.UUID,
 	}, nil
+}
+
+func (r register) createUser(ctx context.Context, phone string) *domain.User {
+	lastSeen := time.Now()
+	user := &domain.User{
+		Phone: phone,
+	}
+	user.Phone = phone
+	user.LastSignInAt = &lastSeen
+	user.Status = domain.USER_STATUS_ACTIVE
+
+	if err := r.repo.UserRepo.CreateOrUpdateUser(ctx, user); err != nil {
+		panic(err)
+	}
+
+	return user
 }

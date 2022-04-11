@@ -2,11 +2,12 @@ package repository
 
 import (
 	"context"
+	"time"
+
 	"github.com/khodemobin/pilo/auth/internal/domain"
 	"github.com/khodemobin/pilo/auth/pkg/cache"
 	"github.com/khodemobin/pilo/auth/pkg/encrypt"
 	"gorm.io/gorm"
-	"time"
 )
 
 type token struct {
@@ -28,9 +29,8 @@ func (t token) CreateToken(ctx context.Context, ttl int, user *domain.User) (*do
 	}
 
 	tokenModel := &domain.Token{
-		Token:   token,
-		UserID:  user.ID,
-		Revoked: false,
+		Token:  token,
+		UserID: user.ID,
 	}
 
 	err = t.db.Create(&tokenModel).Error

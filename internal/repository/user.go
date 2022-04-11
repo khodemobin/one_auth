@@ -5,6 +5,7 @@ import (
 	"errors"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/khodemobin/pilo/auth/pkg/cache"
 
 	"github.com/khodemobin/pilo/auth/internal/domain"
@@ -72,6 +73,7 @@ func (u userRepo) CreateOrUpdateUser(ctx context.Context, user *domain.User) err
 	}
 
 	if err != nil {
+		user.UUID = uuid.New().String()
 		err = u.db.Create(&user).Error
 	} else {
 		err = u.db.Model(&newUser).Updates(user).Error

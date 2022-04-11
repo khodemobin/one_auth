@@ -80,7 +80,7 @@ func (l login) Login(ctx context.Context, phone, password string, meta interface
 	return &domain.Login{
 		Token:     token.Token,
 		ExpiresIn: ttl,
-		UserID:    user.ID,
+		ID:        user.UUID,
 	}, nil
 }
 

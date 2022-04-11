@@ -1,8 +1,9 @@
 package encrypt
 
 import (
-	"github.com/khodemobin/pilo/auth/internal/config"
 	"time"
+
+	"github.com/khodemobin/pilo/auth/internal/config"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/khodemobin/pilo/auth/internal/domain"
@@ -12,7 +13,7 @@ func GenerateAccessToken(user *domain.User, expiresIn time.Duration) (string, er
 	secret := config.GetConfig().App.JwtSecret
 	claims := &jwt.StandardClaims{
 		ExpiresAt: time.Now().Add(expiresIn).Unix(),
-		Subject:   string(rune(user.ID)),
+		Subject:   user.UUID,
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)

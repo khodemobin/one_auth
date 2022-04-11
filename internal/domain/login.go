@@ -5,7 +5,7 @@ import (
 )
 
 type Login struct {
-	UserID       uint   `json:"user_id"`
+	ID           string `json:"id"`
 	Token        string `json:"token"`
 	RefreshToken string `json:",omitempty"`
 	ExpiresIn    int    `json:"expiresIn"`

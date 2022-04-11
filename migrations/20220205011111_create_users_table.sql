@@ -17,7 +17,8 @@ CREATE TABLE `users` (
   `updated_at` timestamp NULL DEFAULT NULL,
   `deleted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `users_phone_unique` (`phone`)
+  UNIQUE KEY `users_phone_unique` (`phone`),
+  UNIQUE KEY `users_uuid_unique` (`uuid`)
 ) ENGINE = InnoDB AUTO_INCREMENT = 2 DEFAULT CHARSET = utf8mb4;
 
 -- +goose StatementEnd
