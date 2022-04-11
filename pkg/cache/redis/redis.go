@@ -51,9 +51,11 @@ func NewTest(t *testing.T, logger logger.Logger) cache.Cache {
 	r := r.NewClient(&r.Options{
 		Addr: s.Addr(),
 	})
+
 	return &client{
 		rc:     r,
 		logger: logger,
+		ctx:    context.Background(),
 	}
 }
 

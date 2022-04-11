@@ -9,6 +9,7 @@ type ConfirmCode struct {
 }
 
 type ConfirmCodeRepository interface {
-	Store(phone string, confirmCode *ConfirmCode) error
-	Find(phone string) (*ConfirmCode, error)
+	CreateConfirmCode(phone string) error
+	FindConfirmCode(phone string) (*ConfirmCode, error)
+	DeleteConfirmCode(phone string) error
 }

@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"log"
 	"strconv"
 	"time"
 
@@ -42,12 +41,7 @@ func (r register) RegisterRequest(ctx context.Context, phone string) error {
 		return errors.New("phone taken before")
 	}
 
-	confirmCode, code, err := encrypt.GenerateConfirmCode(phone)
-	if err != nil {
-		panic("internal error, can not create token")
-	}
-	log.Println(code)
-	return r.repo.ConfirmCodeRepo.Store(phone, confirmCode)
+	return r.repo.ConfirmCodeRepo.CreateConfirmCode(phone)
 }
 
 func (r register) RegisterVerify(ctx context.Context, phone string, code string) (*domain.Login, error) {
@@ -61,7 +55,7 @@ func (r register) RegisterVerify(ctx context.Context, phone string, code string)
 		return nil, errors.New("user verified!")
 	}
 
-	confirm, err := r.repo.ConfirmCodeRepo.Find(phone)
+	confirm, err := r.repo.ConfirmCodeRepo.FindConfirmCode(phone)
 	if err != nil {
 		panic(err)
 	}
@@ -76,6 +70,7 @@ func (r register) RegisterVerify(ctx context.Context, phone string, code string)
 	}
 
 	user = r.createUser(ctx, phone)
+	r.repo.ConfirmCodeRepo.DeleteConfirmCode(phone)
 	token, err := r.repo.TokenRepo.CreateToken(ctx, ttl, user)
 	if err != nil {
 		panic(err)
