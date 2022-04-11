@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"strconv"
@@ -13,6 +12,7 @@ import (
 	"github.com/khodemobin/pilo/auth/internal/repository"
 	"github.com/khodemobin/pilo/auth/internal/server/handler"
 	"github.com/khodemobin/pilo/auth/pkg/encrypt"
+	"github.com/khodemobin/pilo/auth/pkg/helper"
 	"github.com/khodemobin/pilo/auth/pkg/messenger"
 )
 
@@ -67,12 +67,12 @@ func (l login) Login(ctx context.Context, phone, password string, meta interface
 		date:   time.Now(),
 	}
 
-	marshal, err := json.Marshal(data)
+	json, err := helper.ToJson(data)
 	if err != nil {
 		panic(fmt.Sprintf("internal error, can not create token. err : %s", err.Error()))
 	}
 
-	err = l.messenger.Write(string(marshal), "auth_login")
+	err = l.messenger.Write(json, "auth_login")
 	if err != nil {
 		panic(fmt.Sprintf("internal error, can not marshal rabbit data. err : %s", err.Error()))
 	}

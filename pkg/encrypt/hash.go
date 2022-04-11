@@ -1,6 +1,8 @@
 package encrypt
 
-import "golang.org/x/crypto/bcrypt"
+import (
+	"golang.org/x/crypto/bcrypt"
+)
 
 // Hash generates a hashed password from a plaintext string
 func Hash(text string) (string, error) {

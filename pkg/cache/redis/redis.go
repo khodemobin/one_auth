@@ -2,14 +2,15 @@ package redis
 
 import (
 	"context"
-	"log"
 	"strconv"
 	"testing"
+	"time"
 
 	"github.com/alicebob/miniredis/v2"
 	"github.com/khodemobin/pilo/auth/pkg/cache"
 	"github.com/khodemobin/pilo/auth/pkg/helper"
 
+	"github.com/go-redis/redis/v8"
 	r "github.com/go-redis/redis/v8"
 	"github.com/khodemobin/pilo/auth/internal/config"
 	"github.com/khodemobin/pilo/auth/pkg/logger"
@@ -37,7 +38,6 @@ func New(cfg *config.Config, logger logger.Logger) cache.Cache {
 		DB:       db,
 		PoolSize: poolSize,
 	})
-	log.Println(r.Ping(context.Background()))
 
 	return &client{
 		rc:     r,
@@ -59,7 +59,7 @@ func NewTest(t *testing.T, logger logger.Logger) cache.Cache {
 
 func (r *client) Get(key string, defaultValue func() (*string, error)) (*string, error) {
 	value, err := r.rc.Get(r.ctx, helper.ToMD5(key)).Result()
-	if err != nil {
+	if err == redis.Nil {
 		if defaultValue == nil {
 			return nil, nil
 		}
@@ -69,7 +69,7 @@ func (r *client) Get(key string, defaultValue func() (*string, error)) (*string,
 			return nil, err
 		}
 
-		err = r.Set(key, *v)
+		err = r.Set(key, *v, 0)
 
 		if err != nil {
 			return nil, err
@@ -81,8 +81,8 @@ func (r *client) Get(key string, defaultValue func() (*string, error)) (*string,
 	return &value, err
 }
 
-func (r *client) Set(key string, value interface{}) error {
-	return r.rc.Set(r.ctx, helper.ToMD5(key), value, 0).Err()
+func (r *client) Set(key string, value interface{}, expiration time.Duration) error {
+	return r.rc.Set(r.ctx, helper.ToMD5(key), value, expiration).Err()
 }
 
 func (r *client) Delete(key string) error {

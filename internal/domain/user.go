@@ -12,7 +12,6 @@ import (
 const (
 	USER_STATUS_ACTIVE    = 1
 	USER_STATUS_IN_ACTIVE = 0
-	USER_STATUS_PENDDING  = 2
 )
 
 type User struct {
