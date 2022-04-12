@@ -14,7 +14,7 @@ type log struct {
 }
 
 func New() logger.Logger {
-	f, err := os.OpenFile("logs/app.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	f, err := os.OpenFile("logs/app.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0o666)
 	if err != nil {
 		l.Fatalln(err)
 	}

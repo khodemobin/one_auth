@@ -2,7 +2,6 @@ package redis
 
 import (
 	"context"
-	"strconv"
 	"testing"
 	"time"
 
@@ -11,36 +10,19 @@ import (
 	"github.com/khodemobin/pilo/auth/pkg/helper"
 
 	"github.com/go-redis/redis/v8"
-	r "github.com/go-redis/redis/v8"
-	"github.com/khodemobin/pilo/auth/internal/config"
+
 	"github.com/khodemobin/pilo/auth/pkg/logger"
 )
 
 type client struct {
-	rc     *r.Client
-	logger logger.Logger
+	rc     *redis.Client
 	ctx    context.Context
+	logger logger.Logger
 }
 
-func New(cfg *config.Config, logger logger.Logger) cache.Cache {
-	db, err := strconv.Atoi(cfg.Redis.Database)
-	if err != nil {
-		logger.Fatal(err)
-	}
-
-	poolSize, err := strconv.Atoi(cfg.Redis.PoolSize)
-	if err != nil {
-		logger.Fatal(err)
-	}
-	r := r.NewClient(&r.Options{
-		Addr:     cfg.Redis.Address,
-		Password: cfg.Redis.Password,
-		DB:       db,
-		PoolSize: poolSize,
-	})
-
+func New(rc *redis.Client, logger logger.Logger) cache.Cache {
 	return &client{
-		rc:     r,
+		rc:     rc,
 		logger: logger,
 		ctx:    context.Background(),
 	}
@@ -48,7 +30,7 @@ func New(cfg *config.Config, logger logger.Logger) cache.Cache {
 
 func NewTest(t *testing.T, logger logger.Logger) cache.Cache {
 	s := miniredis.RunT(t)
-	r := r.NewClient(&r.Options{
+	r := redis.NewClient(&redis.Options{
 		Addr: s.Addr(),
 	})
 

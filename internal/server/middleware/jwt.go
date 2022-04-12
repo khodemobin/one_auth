@@ -1,7 +1,6 @@
 package middleware
 
 import (
-	"log"
 	"net/http"
 	"regexp"
 
@@ -14,7 +13,6 @@ var bearerRegexp = regexp.MustCompile(`^(?:B|b)earer (\S+$)`)
 
 func JWTChecker(c *fiber.Ctx) error {
 	authHeader := c.Get("Authorization")
-	log.Println(authHeader)
 	if authHeader == "" {
 		return c.Status(http.StatusForbidden).JSON(helper.DefaultResponse(nil, "This endpoint requires a Bearer token", 0))
 	}

@@ -9,8 +9,8 @@ import (
 	"github.com/khodemobin/pilo/auth/internal/config"
 )
 
-func IsLocal(cfg *config.Config) bool {
-	return cfg.App.Env == "local"
+func IsLocal() bool {
+	return config.GetConfig().App.Env == "local"
 }
 
 func ToMD5(s string) string {

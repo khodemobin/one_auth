@@ -1,12 +1,16 @@
 package main
 
 import (
+	"log"
+
+	"github.com/khodemobin/pilo/auth/app"
 	"github.com/khodemobin/pilo/auth/cmd"
 	"github.com/spf13/cobra"
-	"log"
 )
 
 func main() {
+	app.New()
+
 	rootCmd := &cobra.Command{
 		Use:                "app",
 		DisableAutoGenTag:  true,

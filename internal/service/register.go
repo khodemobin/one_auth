@@ -7,27 +7,19 @@ import (
 	"time"
 
 	"github.com/go-errors/errors"
-	"github.com/khodemobin/pilo/auth/internal/config"
+	"github.com/khodemobin/pilo/auth/app"
 	"github.com/khodemobin/pilo/auth/internal/domain"
 	"github.com/khodemobin/pilo/auth/internal/repository"
-	"github.com/khodemobin/pilo/auth/pkg/cache"
 	"github.com/khodemobin/pilo/auth/pkg/encrypt"
-	"github.com/khodemobin/pilo/auth/pkg/messenger"
 )
 
 type register struct {
-	repo      *repository.Repository
-	messenger messenger.Messenger
-	cfg       *config.Config
-	cache     cache.Cache
+	repo *repository.Repository
 }
 
-func NewRegisterService(repo *repository.Repository, messenger messenger.Messenger, c cache.Cache, cfg *config.Config) domain.RegisterService {
+func NewRegisterService(repo *repository.Repository) domain.RegisterService {
 	return &register{
-		repo:      repo,
-		messenger: messenger,
-		cfg:       cfg,
-		cache:     c,
+		repo: repo,
 	}
 }
 
@@ -65,7 +57,7 @@ func (r register) RegisterVerify(ctx context.Context, phone string, code string,
 		return nil, errors.New("confirm code is invalid")
 	}
 
-	ttl, err := strconv.Atoi(r.cfg.App.JwtTTL)
+	ttl, err := strconv.Atoi(app.Config().App.JwtTTL)
 	if err != nil {
 		panic(fmt.Sprintf("internal error, can not convert jwt ttl to int. err : %s", err.Error()))
 	}

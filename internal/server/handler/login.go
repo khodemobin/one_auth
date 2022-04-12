@@ -6,12 +6,10 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/khodemobin/pilo/auth/internal/domain"
 	"github.com/khodemobin/pilo/auth/pkg/helper"
-	"github.com/khodemobin/pilo/auth/pkg/logger"
 	"github.com/khodemobin/pilo/auth/pkg/validator"
 )
 
 type AuthHandler struct {
-	Logger      logger.Logger
 	AuthService domain.LoginService
 }
 

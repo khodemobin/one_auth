@@ -7,17 +7,14 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/khodemobin/pilo/auth/internal/config"
+	"github.com/khodemobin/pilo/auth/app"
 	"github.com/khodemobin/pilo/auth/internal/domain"
 	"github.com/khodemobin/pilo/auth/internal/repository"
 	"github.com/khodemobin/pilo/auth/pkg/helper"
-	"github.com/khodemobin/pilo/auth/pkg/messenger"
 )
 
 type login struct {
-	repo      *repository.Repository
-	messenger messenger.Messenger
-	cfg       *config.Config
+	repo *repository.Repository
 }
 
 type rabbitData struct {
@@ -26,11 +23,9 @@ type rabbitData struct {
 	Date   time.Time
 }
 
-func NewLoginService(repo *repository.Repository, messenger messenger.Messenger, cfg *config.Config) domain.LoginService {
+func NewLoginService(repo *repository.Repository) domain.LoginService {
 	return &login{
-		repo:      repo,
-		messenger: messenger,
-		cfg:       cfg,
+		repo: repo,
 	}
 }
 
@@ -48,7 +43,7 @@ func (l login) Login(ctx context.Context, phone, password string, meta *domain.M
 	// 	return nil, errors.New("invalid credentials")
 	// }
 
-	ttl, err := strconv.Atoi(l.cfg.App.JwtTTL)
+	ttl, err := strconv.Atoi(app.Config().App.JwtTTL)
 	if err != nil {
 		panic(err)
 	}
@@ -83,7 +78,7 @@ func (l login) createMeta(userId int, meta *domain.MetaData) {
 		panic(fmt.Sprintf("internal error, can not create token. err : %s", err.Error()))
 	}
 
-	err = l.messenger.Write(json, "auth_login")
+	err = app.Broker().Write(json, "auth_login")
 	if err != nil {
 		panic(fmt.Sprintf("internal error, can not marshal rabbit data. err : %s", err.Error()))
 	}

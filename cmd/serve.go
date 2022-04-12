@@ -8,18 +8,12 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/khodemobin/pilo/auth/pkg/cache/redis"
+	"github.com/khodemobin/pilo/auth/app"
 
-	"github.com/khodemobin/pilo/auth/internal/config"
 	"github.com/khodemobin/pilo/auth/internal/repository"
 	"github.com/khodemobin/pilo/auth/internal/server"
 	"github.com/khodemobin/pilo/auth/internal/service"
-	"github.com/khodemobin/pilo/auth/pkg/db"
 	"github.com/khodemobin/pilo/auth/pkg/helper"
-	"github.com/khodemobin/pilo/auth/pkg/logger"
-	"github.com/khodemobin/pilo/auth/pkg/logger/sentry"
-	"github.com/khodemobin/pilo/auth/pkg/logger/zap"
-	"github.com/khodemobin/pilo/auth/pkg/messenger/rabbit"
 	"github.com/spf13/cobra"
 )
 
@@ -35,35 +29,21 @@ func ServeCommand() *cobra.Command {
 }
 
 func Execute() {
-	// init main components
-	config := config.New()
-
-	var logger logger.Logger
-	if helper.IsLocal(config) {
-		logger = zap.New()
-	} else {
-		logger = sentry.New(config)
-	}
-
-	msg := rabbit.New(config, logger)
-	db := db.New(config, logger)
-	redis := redis.New(config, logger)
-
-	defer db.Close()
-	defer redis.Close()
-
-	repository := repository.NewRepository(db.DB, redis)
-	service := service.NewService(repository, logger, redis, msg, config)
+	repository := repository.NewRepository()
+	service := service.NewService(repository)
 
 	// start server
-	restServer := server.New(service, helper.IsLocal(config), logger)
+	restServer := server.New(service, helper.IsLocal())
 	go func() {
-		if err := restServer.Start(helper.IsLocal(config), config.App.Port); err != nil {
+		if err := restServer.Start(helper.IsLocal(), app.Config().App.Port); err != nil {
 			msg := fmt.Sprintf("error happen while serving: %v", err)
-			logger.Error(errors.New(msg))
+			app.Log().Error(errors.New(msg))
 			log.Println(msg)
 		}
 	}()
+
+	// start queue
+	app.Queue().Start()
 
 	// wait for close signal
 	signalChan := make(chan os.Signal, 1)
