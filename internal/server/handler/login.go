@@ -15,11 +15,6 @@ type AuthHandler struct {
 	AuthService domain.LoginService
 }
 
-type MetaData struct {
-	Headers map[string]string
-	IPs     []string
-}
-
 func (h AuthHandler) Login(c *fiber.Ctx) error {
 	req := new(domain.LoginRequest)
 
@@ -32,7 +27,7 @@ func (h AuthHandler) Login(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusUnprocessableEntity).JSON(errors)
 	}
 
-	meta := &MetaData{
+	meta := &domain.MetaData{
 		Headers: c.GetRespHeaders(),
 		IPs:     c.IPs(),
 	}
@@ -50,7 +45,12 @@ func (h AuthHandler) Logout(c *fiber.Ctx) error {
 	splitToken := strings.Split(reqToken, "Bearer ")
 	reqToken = splitToken[1]
 
-	err := h.AuthService.Logout(c.Context(), reqToken)
+	meta := &domain.MetaData{
+		Headers: c.GetRespHeaders(),
+		IPs:     c.IPs(),
+	}
+
+	err := h.AuthService.Logout(c.Context(), reqToken, meta)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(helper.DefaultResponse(nil, err.Error(), 0))
 	}

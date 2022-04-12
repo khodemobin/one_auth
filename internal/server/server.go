@@ -2,7 +2,6 @@ package server
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/cache"
 	"github.com/gofiber/fiber/v2/middleware/compress"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	fiberLogger "github.com/gofiber/fiber/v2/middleware/logger"
@@ -48,7 +47,6 @@ func (r *Server) Start(isLocal bool, port string) error {
 	}
 
 	r.app.Use(cors.New())
-	r.app.Use(cache.New())
 	r.app.Use(compress.New())
 
 	r.routing()

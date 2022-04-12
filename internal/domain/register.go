@@ -3,8 +3,8 @@ package domain
 import "context"
 
 type RegisterService interface {
-	RegisterRequest(ctx context.Context, phone string) error
-	RegisterVerify(ctx context.Context, phone string, code string) (*Login, error)
+	RegisterRequest(ctx context.Context, phone string, meta *MetaData) error
+	RegisterVerify(ctx context.Context, phone string, code string, meta *MetaData) (*Login, error)
 }
 
 type RegisterRequest struct {

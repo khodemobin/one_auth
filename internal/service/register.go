@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 	"strconv"
 	"time"
 
@@ -30,7 +31,7 @@ func NewRegisterService(repo *repository.Repository, messenger messenger.Messeng
 	}
 }
 
-func (r register) RegisterRequest(ctx context.Context, phone string) error {
+func (r register) RegisterRequest(ctx context.Context, phone string, meta *domain.MetaData) error {
 	// TODO send verify code
 	// TODO check send limit
 	user, err := r.repo.UserRepo.FindUserByPhone(ctx, phone, -1)
@@ -44,11 +45,11 @@ func (r register) RegisterRequest(ctx context.Context, phone string) error {
 	return r.repo.ConfirmCodeRepo.CreateConfirmCode(phone)
 }
 
-func (r register) RegisterVerify(ctx context.Context, phone string, code string) (*domain.Login, error) {
+func (r register) RegisterVerify(ctx context.Context, phone string, code string, meta *domain.MetaData) (*domain.Login, error) {
 	// TODO check limits
 	user, err := r.repo.UserRepo.FindUserByPhone(ctx, phone, -1)
 	if err != nil {
-		panic(err)
+		panic(fmt.Sprintf("internal error, can not find user. err : %s", err.Error()))
 	}
 
 	if user.ID != 0 {
@@ -57,7 +58,7 @@ func (r register) RegisterVerify(ctx context.Context, phone string, code string)
 
 	confirm, err := r.repo.ConfirmCodeRepo.FindConfirmCode(phone)
 	if err != nil {
-		panic(err)
+		panic(fmt.Sprintf("internal error, can not find confirm code. err : %s", err.Error()))
 	}
 
 	if confirm == nil || !encrypt.Check(confirm.Hash, code) {
@@ -66,14 +67,14 @@ func (r register) RegisterVerify(ctx context.Context, phone string, code string)
 
 	ttl, err := strconv.Atoi(r.cfg.App.JwtTTL)
 	if err != nil {
-		panic(err)
+		panic(fmt.Sprintf("internal error, can not convert jwt ttl to int. err : %s", err.Error()))
 	}
 
 	user = r.createUser(ctx, phone)
 	r.repo.ConfirmCodeRepo.DeleteConfirmCode(phone)
 	token, err := r.repo.TokenRepo.CreateToken(ctx, ttl, user)
 	if err != nil {
-		panic(err)
+		panic(fmt.Sprintf("internal error, can not create token. err : %s", err.Error()))
 	}
 
 	// TODO add event log and back and security
@@ -94,7 +95,7 @@ func (r register) createUser(ctx context.Context, phone string) *domain.User {
 	user.Status = domain.USER_STATUS_ACTIVE
 
 	if err := r.repo.UserRepo.CreateOrUpdateUser(ctx, user); err != nil {
-		panic(err)
+		panic(fmt.Sprintf("internal error, can not find token. err : %s", err.Error()))
 	}
 
 	return user

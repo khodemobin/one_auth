@@ -1,5 +1,7 @@
 package server
 
+import "github.com/khodemobin/pilo/auth/internal/server/middleware"
+
 func (r *Server) routing() {
 	api := r.app.Group("/api")
 	v1 := api.Group("/v1")
@@ -12,4 +14,7 @@ func (r *Server) routing() {
 
 	v1.Post("/recovery", r.authHandler.Login)
 	v1.Post("/recovery/verify", r.authHandler.Login)
+
+	auth := v1.Use(middleware.JWTChecker)
+	auth.Get("/me", r.authHandler.UserInfo)
 }

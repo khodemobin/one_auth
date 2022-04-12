@@ -16,7 +16,13 @@ type LoginRequest struct {
 	Password string `json:"password" validate:"required,min=5"`
 }
 
+type MetaData struct {
+	Headers map[string]string
+	IPs     []string
+	Path    string
+}
+
 type LoginService interface {
-	Login(ctx context.Context, phone, password string, meta interface{}) (*Login, error)
-	Logout(ctx context.Context, token string) error
+	Login(ctx context.Context, phone, password string, meta *MetaData) (*Login, error)
+	Logout(ctx context.Context, token string, meta *MetaData) error
 }
