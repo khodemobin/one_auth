@@ -12,7 +12,6 @@ import (
 	"github.com/khodemobin/pilo/auth/pkg/logger"
 	"github.com/khodemobin/pilo/auth/pkg/logger/sentry"
 	"github.com/khodemobin/pilo/auth/pkg/logger/zap"
-	"github.com/khodemobin/pilo/auth/pkg/queue"
 	redisClient "github.com/khodemobin/pilo/auth/pkg/redis"
 
 	"gorm.io/gorm"
@@ -21,7 +20,6 @@ import (
 type AppContainer struct {
 	Cache  cache.Cache
 	DB     *gorm.DB
-	Queue  *queue.Queue
 	Redis  *redisDriver.Client
 	Log    logger.Logger
 	Config *config.Config
@@ -44,7 +42,6 @@ func New() {
 	db := db.New(config, logger).DB
 	rc := redisClient.New(config, logger)
 	cache := redis.New(rc, logger)
-	queue := queue.New(rc, logger)
 
 	app = &AppContainer{
 		Config: config,
@@ -52,7 +49,6 @@ func New() {
 		Broker: broker,
 		DB:     db,
 		Cache:  cache,
-		Queue:  queue,
 	}
 }
 
@@ -66,10 +62,6 @@ func Cache() cache.Cache {
 
 func DB() *gorm.DB {
 	return app.DB
-}
-
-func Queue() *queue.Queue {
-	return app.Queue
 }
 
 func Redis() *redisDriver.Client {

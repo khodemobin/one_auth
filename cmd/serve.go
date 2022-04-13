@@ -42,9 +42,6 @@ func Execute() {
 		}
 	}()
 
-	// start queue
-	app.Queue().Start()
-
 	// wait for close signal
 	signalChan := make(chan os.Signal, 1)
 	signal.Notify(signalChan, os.Interrupt, syscall.SIGTERM)

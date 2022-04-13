@@ -2,12 +2,13 @@ package repository_test
 
 import (
 	"context"
+	"testing"
+
 	"github.com/khodemobin/pilo/auth/internal/domain"
 	"github.com/khodemobin/pilo/auth/internal/repository"
 	"github.com/khodemobin/pilo/auth/pkg/test_mock"
 	"github.com/stretchr/testify/assert"
 	"gorm.io/gorm"
-	"testing"
 )
 
 func Test_Repo_CreateToken(t *testing.T) {
@@ -30,10 +31,10 @@ func Test_Repo_CreateToken(t *testing.T) {
 }
 
 func initFakeToken(t *testing.T) (*domain.User, domain.TokenRepository, *gorm.DB) {
-	db, cache, _ := test_mock.NewMock(t)
+	db, _, _ := test_mock.NewMock(t)
 	user, _ := domain.User{}.SeedUser()
 	err := db.Create(user).Error
-	repo := repository.NewTokenRepo(db, cache)
+	repo := repository.NewTokenRepo()
 	assert.NoError(t, err)
 
 	return user, repo, db

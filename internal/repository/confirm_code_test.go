@@ -55,7 +55,7 @@ func Test_Repo_DeleteConfirmCode(t *testing.T) {
 func initFakeConfirmCode(t *testing.T) (*domain.User, domain.ConfirmCodeRepository, cache.Cache) {
 	_, cache, _ := test_mock.NewMock(t)
 	user, _ := domain.User{}.SeedUser()
-	repo := repository.NewConfirmCodeRepo(cache)
+	repo := repository.NewConfirmCodeRepo()
 
 	return user, repo, cache
 }

@@ -11,15 +11,14 @@ import (
 
 func (h AuthHandler) UserInfo(c *fiber.Ctx) error {
 	t := taskq.RegisterTask(&taskq.TaskOptions{
+		Name: "test",
 		Handler: func(name string) error {
 			fmt.Println("Hello", name)
 			return nil
 		},
-	}).WithArgs(context.Background())
+	}).WithArgs(context.Background(), "World")
 
-	// m := t.WithArgs(context.Background(), "World")
-
-	app.Queue().Add(t, m)
+	app.Queue().Add(t)
 
 	return nil
 }

@@ -69,10 +69,10 @@ func Test_Repo_UpdateUserLastSeen(t *testing.T) {
 }
 
 func initFakeUser(t *testing.T) (*domain.User, domain.UserRepository, *gorm.DB) {
-	db, cache, _ := test_mock.NewMock(t)
+	db, _, _ := test_mock.NewMock(t)
 	user, _ := domain.User{}.SeedUser()
 	err := db.Create(user).Error
-	repo := repository.NewUserRepo(db, cache)
+	repo := repository.NewUserRepo()
 	assert.NoError(t, err)
 
 	return user, repo, db
