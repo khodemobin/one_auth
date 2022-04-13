@@ -6,7 +6,7 @@ import (
 	"log"
 
 	"github.com/khodemobin/pilo/auth/app"
-	"github.com/khodemobin/pilo/auth/internal/domain"
+	"github.com/khodemobin/pilo/auth/internal/model"
 	"github.com/khodemobin/pilo/auth/pkg/encrypt"
 	"github.com/khodemobin/pilo/auth/pkg/helper"
 )
@@ -15,7 +15,7 @@ type confirmCode struct {
 	app *app.AppContainer
 }
 
-func NewConfirmCodeRepo() domain.ConfirmCodeRepository {
+func NewConfirmCodeRepo() ConfirmCodeRepository {
 	app := app.App()
 	return &confirmCode{
 		app: app,
@@ -37,7 +37,7 @@ func (c *confirmCode) CreateConfirmCode(phone string) error {
 	return c.app.Cache.Set(fmt.Sprintf("user_confirm_code_%s", phone), json, code.ExpiresIn)
 }
 
-func (c *confirmCode) FindConfirmCode(phone string) (*domain.ConfirmCode, error) {
+func (c *confirmCode) FindConfirmCode(phone string) (*model.ConfirmCode, error) {
 	result, err := c.app.Cache.Get(fmt.Sprintf("user_confirm_code_%s", phone), nil)
 	if err != nil {
 		return nil, err
@@ -47,7 +47,7 @@ func (c *confirmCode) FindConfirmCode(phone string) (*domain.ConfirmCode, error)
 		return nil, nil
 	}
 
-	var confirm domain.ConfirmCode
+	var confirm model.ConfirmCode
 	err = json.Unmarshal([]byte(*result), &confirm)
 
 	return &confirm, err

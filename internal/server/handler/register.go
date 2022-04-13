@@ -2,17 +2,18 @@ package handler
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"github.com/khodemobin/pilo/auth/internal/domain"
+	"github.com/khodemobin/pilo/auth/internal/server/request"
+	"github.com/khodemobin/pilo/auth/internal/service"
 	"github.com/khodemobin/pilo/auth/pkg/helper"
 	"github.com/khodemobin/pilo/auth/pkg/validator"
 )
 
 type RegisterHandler struct {
-	RegisterService domain.RegisterService
+	RegisterService service.RegisterService
 }
 
 func (h RegisterHandler) RegisterRequest(c *fiber.Ctx) error {
-	req := new(domain.RegisterRequest)
+	req := new(request.RegisterRequest)
 
 	if err := c.BodyParser(req); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -25,7 +26,7 @@ func (h RegisterHandler) RegisterRequest(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(errors)
 	}
 
-	meta := &domain.MetaData{
+	meta := &service.MetaData{
 		Headers: c.GetRespHeaders(),
 		IPs:     c.IPs(),
 	}
@@ -41,7 +42,7 @@ func (h RegisterHandler) RegisterRequest(c *fiber.Ctx) error {
 }
 
 func (h RegisterHandler) RegisterVerify(c *fiber.Ctx) error {
-	req := new(domain.RegisterVerifyRequest)
+	req := new(request.RegisterVerifyRequest)
 
 	if err := c.BodyParser(req); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -54,7 +55,7 @@ func (h RegisterHandler) RegisterVerify(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(errors)
 	}
 
-	meta := &domain.MetaData{
+	meta := &service.MetaData{
 		Headers: c.GetRespHeaders(),
 		IPs:     c.IPs(),
 	}

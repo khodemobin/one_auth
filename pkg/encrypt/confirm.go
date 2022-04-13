@@ -5,10 +5,10 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/khodemobin/pilo/auth/internal/domain"
+	"github.com/khodemobin/pilo/auth/internal/model"
 )
 
-func GenerateConfirmCode(phone string) (*domain.ConfirmCode, int, error) {
+func GenerateConfirmCode(phone string) (*model.ConfirmCode, int, error) {
 	rand.Seed(time.Now().UnixNano())
 	min := 100000
 	max := 900000
@@ -19,7 +19,7 @@ func GenerateConfirmCode(phone string) (*domain.ConfirmCode, int, error) {
 	}
 	time := 3 * time.Minute
 
-	return &domain.ConfirmCode{
+	return &model.ConfirmCode{
 		Phone:     phone,
 		Hash:      hash,
 		ExpiresIn: time,

@@ -2,13 +2,13 @@ package service
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"strconv"
 	"time"
 
+	"github.com/go-errors/errors"
 	"github.com/khodemobin/pilo/auth/app"
-	"github.com/khodemobin/pilo/auth/internal/domain"
+	"github.com/khodemobin/pilo/auth/internal/model"
 	"github.com/khodemobin/pilo/auth/internal/repository"
 	"github.com/khodemobin/pilo/auth/pkg/helper"
 )
@@ -18,19 +18,19 @@ type login struct {
 }
 
 type rabbitData struct {
-	Meta   *domain.MetaData
+	Meta   *MetaData
 	UserID int
 	Date   time.Time
 }
 
-func NewLoginService(repo *repository.Repository) domain.LoginService {
+func NewLoginService(repo *repository.Repository) LoginService {
 	return &login{
 		repo: repo,
 	}
 }
 
-func (l login) Login(ctx context.Context, phone, password string, meta *domain.MetaData) (*domain.Login, error) {
-	user, err := l.repo.UserRepo.FindUserByPhone(ctx, phone, domain.USER_STATUS_ACTIVE)
+func (l login) Login(ctx context.Context, phone, password string, meta *MetaData) (*Auth, error) {
+	user, err := l.repo.UserRepo.FindUserByPhone(ctx, phone, model.USER_STATUS_ACTIVE)
 	if err != nil {
 		panic(fmt.Sprintf("internal error, can find user. err : %s", err.Error()))
 	}
@@ -55,18 +55,18 @@ func (l login) Login(ctx context.Context, phone, password string, meta *domain.M
 
 	// l.createMeta(int(user.ID), meta)
 
-	return &domain.Login{
+	return &Auth{
 		Token:     token.Token,
 		ExpiresIn: ttl,
 		ID:        user.UUID,
 	}, nil
 }
 
-func (login) Logout(ctx context.Context, token string, meta *domain.MetaData) error {
+func (login) Logout(ctx context.Context, token string, meta *MetaData) error {
 	return nil
 }
 
-func (l login) createMeta(userId int, meta *domain.MetaData) {
+func (l login) createMeta(userId int, meta *MetaData) {
 	data := &rabbitData{
 		Meta:   meta,
 		UserID: userId,

@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/khodemobin/pilo/auth/internal/domain"
+	"github.com/khodemobin/pilo/auth/internal/model"
 	"github.com/khodemobin/pilo/auth/internal/repository"
 	"github.com/khodemobin/pilo/auth/pkg/test_mock"
 	"github.com/stretchr/testify/assert"
@@ -68,9 +68,9 @@ func Test_Repo_UpdateUserLastSeen(t *testing.T) {
 	db.Delete(&user)
 }
 
-func initFakeUser(t *testing.T) (*domain.User, domain.UserRepository, *gorm.DB) {
+func initFakeUser(t *testing.T) (*model.User, repository.UserRepository, *gorm.DB) {
 	db, _, _ := test_mock.NewMock(t)
-	user, _ := domain.User{}.SeedUser()
+	user, _ := model.User{}.SeedUser()
 	err := db.Create(user).Error
 	repo := repository.NewUserRepo()
 	assert.NoError(t, err)

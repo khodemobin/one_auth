@@ -4,17 +4,18 @@ import (
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/khodemobin/pilo/auth/internal/domain"
+	"github.com/khodemobin/pilo/auth/internal/server/request"
+	"github.com/khodemobin/pilo/auth/internal/service"
 	"github.com/khodemobin/pilo/auth/pkg/helper"
 	"github.com/khodemobin/pilo/auth/pkg/validator"
 )
 
 type AuthHandler struct {
-	AuthService domain.LoginService
+	AuthService service.LoginService
 }
 
 func (h AuthHandler) Login(c *fiber.Ctx) error {
-	req := new(domain.LoginRequest)
+	req := new(request.LoginRequest)
 
 	if err := c.BodyParser(req); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(helper.DefaultResponse(nil, err.Error(), 0))
@@ -25,7 +26,7 @@ func (h AuthHandler) Login(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusUnprocessableEntity).JSON(errors)
 	}
 
-	meta := &domain.MetaData{
+	meta := &service.MetaData{
 		Headers: c.GetRespHeaders(),
 		IPs:     c.IPs(),
 	}
@@ -43,7 +44,7 @@ func (h AuthHandler) Logout(c *fiber.Ctx) error {
 	splitToken := strings.Split(reqToken, "Bearer ")
 	reqToken = splitToken[1]
 
-	meta := &domain.MetaData{
+	meta := &service.MetaData{
 		Headers: c.GetRespHeaders(),
 		IPs:     c.IPs(),
 	}

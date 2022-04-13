@@ -4,12 +4,12 @@ import (
 	"time"
 
 	"github.com/khodemobin/pilo/auth/internal/config"
+	"github.com/khodemobin/pilo/auth/internal/model"
 
 	"github.com/dgrijalva/jwt-go"
-	"github.com/khodemobin/pilo/auth/internal/domain"
 )
 
-func GenerateAccessToken(user *domain.User, expiresIn time.Duration) (string, error) {
+func GenerateAccessToken(user *model.User, expiresIn time.Duration) (string, error) {
 	secret := config.GetConfig().App.JwtSecret
 	claims := &jwt.StandardClaims{
 		ExpiresAt: time.Now().Add(expiresIn).Unix(),

@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/khodemobin/pilo/auth/internal/domain"
+	"github.com/khodemobin/pilo/auth/internal/model"
 	"github.com/khodemobin/pilo/auth/internal/repository"
 	"github.com/khodemobin/pilo/auth/pkg/test_mock"
 	"github.com/stretchr/testify/assert"
@@ -18,8 +18,8 @@ func Test_Repo_CreateToken(t *testing.T) {
 		token, err := repo.CreateToken(context.Background(), 5600, user)
 		assert.NoError(t, err)
 
-		foundToken := domain.Token{}
-		err = db.Where(&domain.Token{ID: token.ID}).First(&foundToken).Error
+		foundToken := model.RefreshToken{}
+		err = db.Where(&model.RefreshToken{ID: token.ID}).First(&foundToken).Error
 
 		assert.NoError(t, err)
 		assert.Equal(t, foundToken.Token, token.Token)
@@ -30,9 +30,9 @@ func Test_Repo_CreateToken(t *testing.T) {
 	db.Delete(&user)
 }
 
-func initFakeToken(t *testing.T) (*domain.User, domain.TokenRepository, *gorm.DB) {
+func initFakeToken(t *testing.T) (*model.User, repository.TokenRepository, *gorm.DB) {
 	db, _, _ := test_mock.NewMock(t)
-	user, _ := domain.User{}.SeedUser()
+	user, _ := model.User{}.SeedUser()
 	err := db.Create(user).Error
 	repo := repository.NewTokenRepo()
 	assert.NoError(t, err)

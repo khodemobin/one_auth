@@ -8,20 +8,20 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/khodemobin/pilo/auth/app"
-	"github.com/khodemobin/pilo/auth/internal/domain"
+	"github.com/khodemobin/pilo/auth/internal/model"
 	"gorm.io/gorm"
 )
 
 type userRepo struct{}
 
-func NewUserRepo() domain.UserRepository {
+func NewUserRepo() UserRepository {
 	return &userRepo{}
 }
 
-func (userRepo) FindUserById(ctx context.Context, id int, status int) (*domain.User, error) {
-	var user *domain.User
+func (userRepo) FindUserById(ctx context.Context, id int, status int) (*model.User, error) {
+	var user *model.User
 
-	findQ := &domain.User{ID: uint(id)}
+	findQ := &model.User{ID: uint(id)}
 	if status != -1 {
 		findQ.Status = status
 	}
@@ -34,10 +34,10 @@ func (userRepo) FindUserById(ctx context.Context, id int, status int) (*domain.U
 	return nil, err
 }
 
-func (userRepo) FindUserByPhone(ctx context.Context, phone string, status int) (*domain.User, error) {
-	var user *domain.User
+func (userRepo) FindUserByPhone(ctx context.Context, phone string, status int) (*model.User, error) {
+	var user *model.User
 
-	findQ := &domain.User{Phone: phone}
+	findQ := &model.User{Phone: phone}
 	if status != -1 {
 		findQ.Status = status
 	}
@@ -50,17 +50,17 @@ func (userRepo) FindUserByPhone(ctx context.Context, phone string, status int) (
 	return nil, err
 }
 
-func (userRepo) UpdateUserLastSeen(ctx context.Context, user *domain.User) error {
+func (userRepo) UpdateUserLastSeen(ctx context.Context, user *model.User) error {
 	now := time.Now()
 	user.LastSignInAt = &now
 	err := app.DB().Save(user).Error
 	return err
 }
 
-func (userRepo) CreateOrUpdateUser(ctx context.Context, user *domain.User) error {
-	newUser := &domain.User{}
+func (userRepo) CreateOrUpdateUser(ctx context.Context, user *model.User) error {
+	newUser := &model.User{}
 
-	err := app.DB().Where(domain.User{Phone: user.Phone}).First(&newUser).Error
+	err := app.DB().Where(model.User{Phone: user.Phone}).First(&newUser).Error
 
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return err

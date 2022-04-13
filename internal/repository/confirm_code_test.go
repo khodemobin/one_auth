@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/khodemobin/pilo/auth/internal/domain"
+	"github.com/khodemobin/pilo/auth/internal/model"
 	"github.com/khodemobin/pilo/auth/internal/repository"
 	"github.com/khodemobin/pilo/auth/pkg/cache"
 	"github.com/khodemobin/pilo/auth/pkg/test_mock"
@@ -52,9 +52,9 @@ func Test_Repo_DeleteConfirmCode(t *testing.T) {
 	})
 }
 
-func initFakeConfirmCode(t *testing.T) (*domain.User, domain.ConfirmCodeRepository, cache.Cache) {
+func initFakeConfirmCode(t *testing.T) (*model.User, repository.ConfirmCodeRepository, cache.Cache) {
 	_, cache, _ := test_mock.NewMock(t)
-	user, _ := domain.User{}.SeedUser()
+	user, _ := model.User{}.SeedUser()
 	repo := repository.NewConfirmCodeRepo()
 
 	return user, repo, cache

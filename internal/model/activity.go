@@ -1,14 +1,11 @@
-package domain
+package model
 
 type Activity struct {
+	ID        uint
 	Action    string
 	IP        string
 	Path      string
 	Operating string
 	Version   string
 	Headers   string
-}
-
-type ActivityRepository interface {
-	CreateActivity(ac Activity) error
 }

@@ -1,7 +1,6 @@
-package domain
+package model
 
 import (
-	"context"
 	"time"
 
 	"gorm.io/gorm"
@@ -27,14 +26,7 @@ type User struct {
 	CreatedAt    time.Time      `json:"created_at" faker:"-"`
 	UpdatedAt    time.Time      `json:"updated_at" faker:"-"`
 	DeletedAt    gorm.DeletedAt `json:"deleted_at" gorm:"index" faker:"-"`
-	Tokens       []Token        `faker:"-"`
-}
-
-type UserRepository interface {
-	FindUserById(ctx context.Context, id int, status int) (*User, error)
-	FindUserByPhone(ctx context.Context, phone string, status int) (*User, error)
-	UpdateUserLastSeen(ctx context.Context, user *User) error
-	CreateOrUpdateUser(ctx context.Context, user *User) error
+	Tokens       []RefreshToken `faker:"-"`
 }
 
 func (u User) SeedUser() (*User, error) {

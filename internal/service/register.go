@@ -8,7 +8,7 @@ import (
 
 	"github.com/go-errors/errors"
 	"github.com/khodemobin/pilo/auth/app"
-	"github.com/khodemobin/pilo/auth/internal/domain"
+	"github.com/khodemobin/pilo/auth/internal/model"
 	"github.com/khodemobin/pilo/auth/internal/repository"
 	"github.com/khodemobin/pilo/auth/pkg/encrypt"
 )
@@ -17,13 +17,13 @@ type register struct {
 	repo *repository.Repository
 }
 
-func NewRegisterService(repo *repository.Repository) domain.RegisterService {
+func NewRegisterService(repo *repository.Repository) RegisterService {
 	return &register{
 		repo: repo,
 	}
 }
 
-func (r register) RegisterRequest(ctx context.Context, phone string, meta *domain.MetaData) error {
+func (r register) RegisterRequest(ctx context.Context, phone string, meta *MetaData) error {
 	// TODO send verify code
 	// TODO check send limit
 	user, err := r.repo.UserRepo.FindUserByPhone(ctx, phone, -1)
@@ -37,7 +37,7 @@ func (r register) RegisterRequest(ctx context.Context, phone string, meta *domai
 	return r.repo.ConfirmCodeRepo.CreateConfirmCode(phone)
 }
 
-func (r register) RegisterVerify(ctx context.Context, phone string, code string, meta *domain.MetaData) (*domain.Login, error) {
+func (r register) RegisterVerify(ctx context.Context, phone string, code string, meta *MetaData) (*Auth, error) {
 	// TODO check limits
 	user, err := r.repo.UserRepo.FindUserByPhone(ctx, phone, -1)
 	if err != nil {
@@ -70,21 +70,21 @@ func (r register) RegisterVerify(ctx context.Context, phone string, code string,
 	}
 
 	// TODO add event log and back and security
-	return &domain.Login{
+	return &Auth{
 		Token:     token.Token,
 		ExpiresIn: ttl,
 		ID:        user.UUID,
 	}, nil
 }
 
-func (r register) createUser(ctx context.Context, phone string) *domain.User {
+func (r register) createUser(ctx context.Context, phone string) *model.User {
 	lastSeen := time.Now()
-	user := &domain.User{
+	user := &model.User{
 		Phone: phone,
 	}
 	user.Phone = phone
 	user.LastSignInAt = &lastSeen
-	user.Status = domain.USER_STATUS_ACTIVE
+	user.Status = model.USER_STATUS_ACTIVE
 
 	if err := r.repo.UserRepo.CreateOrUpdateUser(ctx, user); err != nil {
 		panic(fmt.Sprintf("internal error, can not find token. err : %s", err.Error()))

@@ -1,11 +1,4 @@
-package domain
-
-import "context"
-
-type RegisterService interface {
-	RegisterRequest(ctx context.Context, phone string, meta *MetaData) error
-	RegisterVerify(ctx context.Context, phone string, code string, meta *MetaData) (*Login, error)
-}
+package request
 
 type RegisterRequest struct {
 	Phone string `json:"phone" validate:"required,min=11,max=11,number"`
