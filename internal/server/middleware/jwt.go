@@ -22,11 +22,13 @@ func JWTChecker(c *fiber.Ctx) error {
 		return c.Status(http.StatusForbidden).JSON(helper.DefaultResponse(nil, "This endpoint requires a Bearer token", 0))
 	}
 
-	err := encrypt.ParseJWTClaims(matches[1])
+	uuid, err := encrypt.ParseJWTClaims(matches[1])
 	if err != nil {
 		// a.clearCookieToken(ctx, w)
 		return c.Status(http.StatusUnauthorized).JSON(helper.DefaultResponse(nil, "", 0))
 	}
+
+	c.Locals("user_uuid", uuid)
 
 	return c.Next()
 }

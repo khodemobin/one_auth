@@ -16,5 +16,5 @@ func (r *Server) routing() {
 	v1.Post("/recovery/verify", r.authHandler.Login)
 
 	auth := v1.Use(middleware.JWTChecker)
-	auth.Get("/me", r.authHandler.UserInfo)
+	auth.Get("/me", r.userHandler.UserInfo)
 }

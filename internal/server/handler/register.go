@@ -26,12 +26,7 @@ func (h RegisterHandler) RegisterRequest(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(errors)
 	}
 
-	meta := &service.MetaData{
-		Headers: c.GetRespHeaders(),
-		IPs:     c.IPs(),
-	}
-
-	err := h.RegisterService.RegisterRequest(c.Context(), req.Phone, meta)
+	err := h.RegisterService.RegisterRequest(c.Context(), req.Phone, createActivity(c))
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"message": err.Error(),
@@ -55,12 +50,7 @@ func (h RegisterHandler) RegisterVerify(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(errors)
 	}
 
-	meta := &service.MetaData{
-		Headers: c.GetRespHeaders(),
-		IPs:     c.IPs(),
-	}
-
-	auth, err := h.RegisterService.RegisterVerify(c.Context(), req.Phone, req.Code, meta)
+	auth, err := h.RegisterService.RegisterVerify(c.Context(), req.Phone, req.Code, createActivity(c))
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"message": err.Error(),

@@ -26,12 +26,7 @@ func (h AuthHandler) Login(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusUnprocessableEntity).JSON(errors)
 	}
 
-	meta := &service.MetaData{
-		Headers: c.GetRespHeaders(),
-		IPs:     c.IPs(),
-	}
-
-	auth, err := h.AuthService.Login(c.Context(), req.Phone, req.Password, meta)
+	auth, err := h.AuthService.Login(c.Context(), req.Phone, req.Password, createActivity(c))
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(helper.DefaultResponse(nil, err.Error(), 0))
 	}
@@ -44,12 +39,7 @@ func (h AuthHandler) Logout(c *fiber.Ctx) error {
 	splitToken := strings.Split(reqToken, "Bearer ")
 	reqToken = splitToken[1]
 
-	meta := &service.MetaData{
-		Headers: c.GetRespHeaders(),
-		IPs:     c.IPs(),
-	}
-
-	err := h.AuthService.Logout(c.Context(), reqToken, meta)
+	err := h.AuthService.Logout(c.Context(), reqToken, createActivity(c))
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(helper.DefaultResponse(nil, err.Error(), 0))
 	}

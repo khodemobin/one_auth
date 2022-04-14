@@ -20,13 +20,15 @@ func GenerateAccessToken(user *model.User, expiresIn time.Duration) (string, err
 	return token.SignedString([]byte(secret))
 }
 
-func ParseJWTClaims(bearer string) error {
+func ParseJWTClaims(bearer string) (string, error) {
 	secret := config.GetConfig().App.JwtSecret
 
 	p := jwt.Parser{ValidMethods: []string{jwt.SigningMethodHS256.Name}}
-	_, err := p.ParseWithClaims(bearer, &jwt.StandardClaims{}, func(token *jwt.Token) (interface{}, error) {
+	c, err := p.ParseWithClaims(bearer, &jwt.StandardClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return []byte(secret), nil
 	})
 
-	return err
+	claims := c.Claims.(*jwt.StandardClaims)
+
+	return claims.Subject, err
 }

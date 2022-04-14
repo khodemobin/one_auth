@@ -16,13 +16,13 @@ func Test_Repo_FindUserById(t *testing.T) {
 	user, repo, db := initFakeUser(t)
 
 	t.Run("test find right user by id", func(t *testing.T) {
-		u, err := repo.FindUserById(context.Background(), int(user.ID), 1)
+		u, err := repo.FindUserByUUID(context.Background(), user.UUID, 1)
 		assert.NoError(t, err)
 		assert.Equal(t, u.ID, user.ID)
 	})
 
 	t.Run("test not found user by wrong id", func(t *testing.T) {
-		u, err := repo.FindUserById(context.Background(), 123123, 0)
+		u, err := repo.FindUserByUUID(context.Background(), "123123", 0)
 		assert.Empty(t, u)
 		assert.NoError(t, err)
 	})

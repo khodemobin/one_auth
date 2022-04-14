@@ -15,6 +15,7 @@ type Server struct {
 	app             *fiber.App
 	authHandler     handler.AuthHandler
 	registerHandler handler.RegisterHandler
+	userHandler     handler.UserHandler
 }
 
 func New(service *service.Service, isLocal bool) *Server {
@@ -29,12 +30,13 @@ func New(service *service.Service, isLocal bool) *Server {
 			},
 		}),
 		authHandler: handler.AuthHandler{
-		
 			AuthService: service.LoginService,
 		},
 		registerHandler: handler.RegisterHandler{
-		
 			RegisterService: service.RegisterService,
+		},
+		userHandler: handler.UserHandler{
+			UserService: service.UserService,
 		},
 	}
 }
@@ -43,11 +45,10 @@ func (r *Server) Start(isLocal bool, port string) error {
 	if isLocal {
 		r.app.Use(fiberLogger.New())
 	} else {
-		r.app.Use(recover.New())
+		r.app.Use(recover.New(), compress.New())
 	}
 
 	r.app.Use(cors.New())
-	r.app.Use(compress.New())
 
 	r.routing()
 	return r.app.Listen(":" + port)

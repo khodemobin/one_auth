@@ -18,10 +18,10 @@ func NewUserRepo() UserRepository {
 	return &userRepo{}
 }
 
-func (userRepo) FindUserById(ctx context.Context, id int, status int) (*model.User, error) {
+func (userRepo) FindUserByUUID(ctx context.Context, uuid string, status int) (*model.User, error) {
 	var user *model.User
 
-	findQ := &model.User{ID: uint(id)}
+	findQ := &model.User{UUID: uuid}
 	if status != -1 {
 		findQ.Status = status
 	}

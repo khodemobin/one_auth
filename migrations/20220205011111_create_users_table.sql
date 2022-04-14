@@ -4,7 +4,7 @@ SELECT
   'up SQL query';
 
 CREATE TABLE `users` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `uuid` varchar(255) NOT NULL,
   `phone` varchar(20) NOT NULL,
   `password` varchar(255) DEFAULT NULL,

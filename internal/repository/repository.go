@@ -10,21 +10,24 @@ type Repository struct {
 	UserRepo        UserRepository
 	TokenRepo       TokenRepository
 	ConfirmCodeRepo ConfirmCodeRepository
+	ActivityRepos   ActivityRepository
 }
 
 func NewRepository() *Repository {
 	up := NewUserRepo()
 	tp := NewTokenRepo()
 	cp := NewConfirmCodeRepo()
+	ap := NewActivityRepo()
 	return &Repository{
 		UserRepo:        up,
 		TokenRepo:       tp,
 		ConfirmCodeRepo: cp,
+		ActivityRepos:   ap,
 	}
 }
 
 type ActivityRepository interface {
-	CreateActivity(ac model.Activity) error
+	CreateActivity(ac *model.Activity) error
 }
 
 type ConfirmCodeRepository interface {
@@ -39,7 +42,7 @@ type TokenRepository interface {
 }
 
 type UserRepository interface {
-	FindUserById(ctx context.Context, id int, status int) (*model.User, error)
+	FindUserByUUID(ctx context.Context, uuid string, status int) (*model.User, error)
 	FindUserByPhone(ctx context.Context, phone string, status int) (*model.User, error)
 	UpdateUserLastSeen(ctx context.Context, user *model.User) error
 	CreateOrUpdateUser(ctx context.Context, user *model.User) error
