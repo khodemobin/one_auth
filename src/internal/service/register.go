@@ -56,11 +56,7 @@ func (r *register) RegisterVerify(ctx context.Context, phone string, code string
 
 	user = r.createUser(ctx, phone)
 	r.repo.ConfirmCodeRepo.DeleteConfirmCode(phone)
-	refreshToken := r.createToken(ctx, user)
-	token, err := encrypt.GenerateAccessToken(user)
-	if err != nil {
-		panic(err)
-	}
+	refreshToken, token := r.generateToken(ctx, user)
 
 	if err := r.repo.ActivityRepos.CreateActivity(ac); err != nil {
 		panic(err)
@@ -69,7 +65,7 @@ func (r *register) RegisterVerify(ctx context.Context, phone string, code string
 	return &Auth{
 		Token: token,
 		RefreshToken: model.RefreshToken{
-			Token: refreshToken,
+			Token: refreshToken.Token,
 		},
 		ExpiresIn: 3600, // 1 hour
 		ID:        user.UUID,
@@ -92,13 +88,18 @@ func (r *register) createUser(ctx context.Context, phone string) *model.User {
 	return user
 }
 
-func (r *register) createToken(ctx context.Context, user *model.User) string {
-	token, err := r.repo.TokenRepo.CreateToken(ctx, user)
+func (r *register) generateToken(ctx context.Context, user *model.User) (*model.RefreshToken, string) {
+	refreshToken, err := r.repo.TokenRepo.CreateToken(ctx, user)
 	if err != nil {
 		panic(fmt.Sprintf("internal error, can not create token. err : %s", err.Error()))
 	}
 
-	return token.Token
+	token, err := encrypt.GenerateAccessToken(user)
+	if err != nil {
+		panic(fmt.Sprintf("internal error, can not create token. err : %s", err.Error()))
+	}
+
+	return refreshToken, token
 }
 
 func (r *register) checkConfirmCode(phone string, code string) error {

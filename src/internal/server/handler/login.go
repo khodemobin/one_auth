@@ -59,7 +59,7 @@ func (h AuthHandler) RefreshToken(c *fiber.Ctx) error {
 		return c.Status(http.StatusUnauthorized).JSON(helper.DefaultResponse(nil, "", 0))
 	}
 
-	createLoginCookie(c, auth)
+	// createLoginCookie(c, auth)
 
 	return c.JSON(helper.DefaultResponse(auth, "", 1))
 }

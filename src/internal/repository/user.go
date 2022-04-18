@@ -34,6 +34,22 @@ func (userRepo) FindUserByUUID(ctx context.Context, uuid string, status int) (*m
 	return nil, err
 }
 
+func (userRepo) FindUserByID(ctx context.Context, id uint, status int) (*model.User, error) {
+	var user *model.User
+
+	findQ := &model.User{ID: id}
+	if status != -1 {
+		findQ.Status = status
+	}
+
+	err := app.DB().Where(findQ).First(&user).Error
+	if err == nil || errors.Is(err, gorm.ErrRecordNotFound) {
+		return user, nil
+	}
+
+	return nil, err
+}
+
 func (userRepo) FindUserByPhone(ctx context.Context, phone string, status int) (*model.User, error) {
 	var user *model.User
 

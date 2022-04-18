@@ -44,6 +44,7 @@ type TokenRepository interface {
 
 type UserRepository interface {
 	FindUserByUUID(ctx context.Context, uuid string, status int) (*model.User, error)
+	FindUserByID(ctx context.Context, id uint, status int) (*model.User, error)
 	FindUserByPhone(ctx context.Context, phone string, status int) (*model.User, error)
 	UpdateUserLastSeen(ctx context.Context, user *model.User) error
 	CreateOrUpdateUser(ctx context.Context, user *model.User) error
