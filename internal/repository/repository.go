@@ -37,7 +37,8 @@ type ConfirmCodeRepository interface {
 }
 
 type TokenRepository interface {
-	CreateToken(ctx context.Context, ttl int, user *model.User) (*model.RefreshToken, error)
+	CreateToken(ctx context.Context, user *model.User) (*model.RefreshToken, error)
+	FindToken(ctx context.Context, token string) (*model.RefreshToken, error)
 	RevokeToken(ctx context.Context, token *model.RefreshToken) error
 }
 

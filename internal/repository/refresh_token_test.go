@@ -15,7 +15,7 @@ func Test_Repo_CreateToken(t *testing.T) {
 	user, repo, db := initFakeToken(t)
 
 	t.Run("test create token for user", func(t *testing.T) {
-		token, err := repo.CreateToken(context.Background(), 5600, user)
+		token, err := repo.CreateToken(context.Background(), user)
 		assert.NoError(t, err)
 
 		foundToken := model.RefreshToken{}
