@@ -15,7 +15,7 @@ func SeedCommand() *cobra.Command {
 			pass, _ := encrypt.Hash("123456")
 			user, _ := model.User{}.SeedUser()
 			user.Phone = "09384642495"
-			user.Phone = pass
+			user.Password = &pass
 			app.DB().Create(user)
 		},
 	}
