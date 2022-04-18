@@ -1,9 +1,44 @@
-version: '3.8'
+version: "3.8"
 services:
-  auth:
-    build: '.'
-    restart: unless-stopped
-    tty: true
-    pid: "host"
+  web:
+    build:
+      context: .
+      dockerfile: dev.Dockerfile
+    container_name: one_auth
     ports:
-      - "3000:3000"
+      - 3000:3000
+    depends_on:
+      - mysql
+      - redis
+    volumes:
+      - ./:/app
+  mysql:
+    image: "mariadb:latest"
+    ports:
+      - "${DB_PORT}:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: "${DB_PASSWORD}"
+      MYSQL_DATABASE: "${DB_DATABASE}"
+      MYSQL_USER: "${DB_USER}"
+      MYSQL_PASSWORD: "${DB_PASSWORD}"
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+    volumes:
+      - "./data/db/:/var/lib/mysql"
+    networks:
+      - one_auth
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping" ]
+  redis:
+    image: "redis:alpine"
+    ports:
+      - "6379:6379"
+    volumes:
+      - "./data/redis/:/data"
+    networks:
+      - one_auth
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+
+networks:
+  one_auth:
+    driver: bridge
