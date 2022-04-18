@@ -3,11 +3,9 @@ package service
 import (
 	"context"
 	"fmt"
-	"strconv"
 	"time"
 
 	"github.com/go-errors/errors"
-	"github.com/khodemobin/pilo/auth/app"
 	"github.com/khodemobin/pilo/auth/internal/model"
 	"github.com/khodemobin/pilo/auth/internal/repository"
 	"github.com/khodemobin/pilo/auth/pkg/encrypt"
@@ -58,14 +56,22 @@ func (r *register) RegisterVerify(ctx context.Context, phone string, code string
 
 	user = r.createUser(ctx, phone)
 	r.repo.ConfirmCodeRepo.DeleteConfirmCode(phone)
-	token, ttl := r.createToken(ctx, user)
+	refreshToken := r.createToken(ctx, user)
+	token, err := encrypt.GenerateAccessToken(user)
+	if err != nil {
+		panic(err)
+	}
+
 	if err := r.repo.ActivityRepos.CreateActivity(ac); err != nil {
 		panic(err)
 	}
 
 	return &Auth{
-		Token:     token,
-		ExpiresIn: ttl,
+		Token: token,
+		RefreshToken: model.RefreshToken{
+			Token: refreshToken,
+		},
+		ExpiresIn: 3600, // 1 hour
 		ID:        user.UUID,
 	}, nil
 }
@@ -86,17 +92,13 @@ func (r *register) createUser(ctx context.Context, phone string) *model.User {
 	return user
 }
 
-func (r *register) createToken(ctx context.Context, user *model.User) (string, int) {
-	ttl, err := strconv.Atoi(app.Config().App.JwtTTL)
-	if err != nil {
-		panic(fmt.Sprintf("internal error, can not convert jwt ttl to int. err : %s", err.Error()))
-	}
-	token, err := r.repo.TokenRepo.CreateToken(ctx, ttl, user)
+func (r *register) createToken(ctx context.Context, user *model.User) string {
+	token, err := r.repo.TokenRepo.CreateToken(ctx, user)
 	if err != nil {
 		panic(fmt.Sprintf("internal error, can not create token. err : %s", err.Error()))
 	}
 
-	return token.Token, ttl
+	return token.Token
 }
 
 func (r *register) checkConfirmCode(phone string, code string) error {

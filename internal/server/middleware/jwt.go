@@ -24,7 +24,7 @@ func JWTChecker(c *fiber.Ctx) error {
 
 	uuid, err := encrypt.ParseJWTClaims(matches[1])
 	if err != nil {
-		// a.clearCookieToken(ctx, w)
+		c.ClearCookie("refresh_token")
 		return c.Status(http.StatusUnauthorized).JSON(helper.DefaultResponse(nil, "", 0))
 	}
 

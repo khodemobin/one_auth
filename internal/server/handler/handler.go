@@ -1,8 +1,11 @@
 package handler
 
 import (
+	"time"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/khodemobin/pilo/auth/internal/model"
+	"github.com/khodemobin/pilo/auth/internal/service"
 	"github.com/khodemobin/pilo/auth/pkg/user_agent"
 )
 
@@ -18,4 +21,15 @@ func createActivity(c *fiber.Ctx) *model.Activity {
 	a.Headers = c.Request().Header.String()
 
 	return &a
+}
+
+func createLoginCookie(c *fiber.Ctx, auth *service.Auth) {
+	c.Cookie(&fiber.Cookie{
+		Name:     "refresh_token",
+		Value:    auth.RefreshToken.Token,
+		Path:     "/",
+		HTTPOnly: true,
+		Secure:   true,
+		Expires:  time.Now().Add(720 * time.Hour), // 30 day
+	})
 }

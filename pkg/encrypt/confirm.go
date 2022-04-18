@@ -15,7 +15,7 @@ func GenerateConfirmCode(phone string) (*model.ConfirmCode, int, error) {
 	code := rand.Intn(max-min+1) + min
 	hash, err := Hash(fmt.Sprint(code))
 	if err != nil {
-		panic("internal error, can not create hashed token")
+		return nil, 0, err
 	}
 	time := 3 * time.Minute
 

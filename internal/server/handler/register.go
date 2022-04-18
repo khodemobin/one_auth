@@ -57,5 +57,7 @@ func (h RegisterHandler) RegisterVerify(c *fiber.Ctx) error {
 		})
 	}
 
+	createLoginCookie(c, auth)
+
 	return c.JSON(helper.DefaultResponse(auth, "", 1))
 }

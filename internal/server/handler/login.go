@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"net/http"
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
@@ -31,6 +32,8 @@ func (h AuthHandler) Login(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(helper.DefaultResponse(nil, err.Error(), 0))
 	}
 
+	createLoginCookie(c, auth)
+
 	return c.JSON(helper.DefaultResponse(auth, "", 1))
 }
 
@@ -44,5 +47,19 @@ func (h AuthHandler) Logout(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(helper.DefaultResponse(nil, err.Error(), 0))
 	}
 
+	c.ClearCookie("refresh_token")
+
 	return c.JSON(helper.DefaultResponse(nil, "", 1))
+}
+
+func (h AuthHandler) RefreshToken(c *fiber.Ctx) error {
+	token := c.Cookies("refresh_token")
+	auth, err := h.AuthService.RefreshToken(c.Context(), token, createActivity(c))
+	if err != nil {
+		return c.Status(http.StatusUnauthorized).JSON(helper.DefaultResponse(nil, "", 0))
+	}
+
+	createLoginCookie(c, auth)
+
+	return c.JSON(helper.DefaultResponse(auth, "", 1))
 }

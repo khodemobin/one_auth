@@ -8,10 +8,10 @@ import (
 )
 
 type Auth struct {
-	ID           string `json:"id"`
-	Token        string `json:"token"`
-	RefreshToken string `json:",omitempty"`
-	ExpiresIn    int    `json:"expiresIn"`
+	ID           string             `json:"id"`
+	Token        string             `json:"token"`
+	RefreshToken model.RefreshToken `json:"-"`
+	ExpiresIn    int                `json:"expiresIn"`
 }
 
 type Service struct {
@@ -35,6 +35,7 @@ func NewService(repo *repository.Repository) *Service {
 type LoginService interface {
 	Login(ctx context.Context, phone, password string, ac *model.Activity) (*Auth, error)
 	Logout(ctx context.Context, token string, ac *model.Activity) error
+	RefreshToken(ctx context.Context, tokenString string, ac *model.Activity) (*Auth, error)
 }
 
 type RegisterService interface {
