@@ -48,7 +48,9 @@ func (r *Server) Start(isLocal bool, port string) error {
 		r.app.Use(recover.New(), compress.New())
 	}
 
-	r.app.Use(cors.New())
+	r.app.Use(cors.New(cors.Config{
+		AllowCredentials: true,
+	}))
 
 	r.routing()
 	return r.app.Listen(":" + port)
