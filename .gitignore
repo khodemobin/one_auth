@@ -21,3 +21,4 @@ docker/data
 .idea
 .env
 logs/*
+data/*
