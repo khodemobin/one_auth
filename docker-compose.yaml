@@ -5,13 +5,15 @@ services:
       context: .
       dockerfile: dev.Dockerfile
     container_name: one_auth
+    networks:
+      - one_auth
     ports:
-      - 3000:3000
+      - "${APP_PORT}:3000"
     depends_on:
       - mysql
       - redis
     volumes:
-      - ./:/app
+      - ./src:/app
   mysql:
     image: "mariadb:latest"
     ports:
