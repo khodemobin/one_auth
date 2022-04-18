@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://unpkg.com/vue@3"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+</head>
+
+<body>
+
+    <div id="app">
+        <button @click="login">Login</button>
+        <button @click="refreshToken">Refresh Token</button>
+    </div>
+
+    <script>
+        Vue.createApp({
+            data() {
+                return {
+                    message: 'Hello Vue!'
+                }
+            },
+            methods: {
+                async login() {
+                    try {
+                        res = await axios.post('http://127.0.0.1:3000/api/v1/login', {
+                            "phone": "09384642495",
+                            "password": "123456"
+                        })
+                        console.log(res.data)
+                    } catch (error) {
+                        console.log(error);
+                    }
+                },
+                async refreshToken() {
+                    try {
+                        axios.defaults.withCredentials = true
+                        res = await axios.post('http://127.0.0.1:3000/api/v1/refresh_token')
+                        console.log(res.data)
+                    } catch (error) {
+                        console.log(error);
+                    }
+                }
+            },
+        }).mount('#app')
+    </script>
+</body>
+
+</html>
