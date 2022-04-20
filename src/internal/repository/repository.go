@@ -31,28 +31,27 @@ func NewRepository() *Repository {
 }
 
 type ActivityRepository interface {
-	CreateActivity(ac *model.Activity) error
+	Create(ac *model.Activity) error
 }
 
 type ConfirmCodeRepository interface {
-	CreateConfirmCode(phone string) error
-	FindConfirmCode(phone string) (*model.ConfirmCode, error)
-	DeleteConfirmCode(phone string) error
+	Create(phone string) error
+	Find(phone string) (*model.ConfirmCode, error)
+	Delete(phone string) error
 }
 
 type TokenRepository interface {
-	CreateToken(ctx context.Context, user *model.User) (*model.RefreshToken, error)
-	FindToken(ctx context.Context, token string) (*model.RefreshToken, error)
-	RevokeToken(ctx context.Context, token *model.RefreshToken) error
+	Create(ctx context.Context, user *model.User) (*model.RefreshToken, error)
+	Find(ctx context.Context, token string) (*model.RefreshToken, error)
+	Revoke(ctx context.Context, token *model.RefreshToken) error
 }
 
 type UserRepository interface {
-	FindUserByUUID(ctx context.Context, uuid string, status int) (*model.User, error)
-	FindUserByID(ctx context.Context, id uint, status int) (*model.User, error)
-	FindUserByPhone(ctx context.Context, phone string, status int) (*model.User, error)
-	UpdateUserLastSeen(ctx context.Context, user *model.User) error
-	UpdatePassword(ctx context.Context, user *model.User) error
-	CreateOrUpdateUser(ctx context.Context, user *model.User) error
+	FindByUUID(ctx context.Context, uuid string, status int) (*model.User, error)
+	FindByID(ctx context.Context, id uint, status int) (*model.User, error)
+	FindByPhone(ctx context.Context, phone string, status int) (*model.User, error)
+	UpdateLastSeen(ctx context.Context, user *model.User) error
+	CreateOrUpdate(ctx context.Context, user *model.User) error
 }
 
 func checkError(err error) error {

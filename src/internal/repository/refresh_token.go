@@ -17,7 +17,7 @@ func NewTokenRepo() TokenRepository {
 	return &token{}
 }
 
-func (token) CreateToken(ctx context.Context, user *model.User) (*model.RefreshToken, error) {
+func (token) Create(ctx context.Context, user *model.User) (*model.RefreshToken, error) {
 	token, err := encrypt.SecureToken()
 	if err != nil {
 		return nil, err
@@ -44,7 +44,7 @@ func (token) CreateToken(ctx context.Context, user *model.User) (*model.RefreshT
 	return refreshToken, err
 }
 
-func (token) FindToken(ctx context.Context, token string) (*model.RefreshToken, error) {
+func (token) Find(ctx context.Context, token string) (*model.RefreshToken, error) {
 	cache, err := app.Cache().Get(fmt.Sprintf("refresh_token_%s", token), func() (*string, error) {
 		var t *model.RefreshToken
 
@@ -77,7 +77,7 @@ func (token) FindToken(ctx context.Context, token string) (*model.RefreshToken, 
 	return &refreshToken, nil
 }
 
-func (token) RevokeToken(ctx context.Context, token *model.RefreshToken) error {
+func (token) Revoke(ctx context.Context, token *model.RefreshToken) error {
 	err := app.Cache().Delete(fmt.Sprintf("refresh_token_%s", token.Token))
 	if err != nil {
 		return err

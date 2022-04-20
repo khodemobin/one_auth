@@ -41,15 +41,15 @@ type LoginService interface {
 }
 
 type RegisterService interface {
-	RegisterRequest(ctx context.Context, phone string, ac *model.Activity) error
-	RegisterVerify(ctx context.Context, phone string, code string, ac *model.Activity) (*Auth, error)
+	Request(ctx context.Context, phone string, ac *model.Activity) error
+	Verify(ctx context.Context, phone string, code string, ac *model.Activity) (*Auth, error)
 }
 
 type UserService interface {
-	GetUser(ctx context.Context, uuid string, ac *model.Activity) (*model.User, error)
-	UpdateUser(ctx context.Context, uuid string, user *model.User, ac *model.Activity) error
+	Me(ctx context.Context, uuid string, ac *model.Activity) (*model.User, error)
+	Update(ctx context.Context, uuid string, user *model.User, ac *model.Activity) error
 }
 
 type RefreshTokenService interface {
-	RefreshToken(ctx context.Context, tokenString string, ac *model.Activity) (*Auth, error)
+	Refresh(ctx context.Context, tokenString string, ac *model.Activity) (*Auth, error)
 }

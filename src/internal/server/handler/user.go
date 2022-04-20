@@ -13,9 +13,9 @@ type UserHandler struct {
 	UserService service.UserService
 }
 
-func (u UserHandler) UserInfo(c *fiber.Ctx) error {
+func (u *UserHandler) Me(c *fiber.Ctx) error {
 	uuid := c.Locals("user_uuid")
-	user, err := u.UserService.GetUser(c.Context(), uuid.(string), createActivity(c))
+	user, err := u.UserService.Me(c.Context(), uuid.(string), createActivity(c))
 	if err != nil {
 		return c.Status(http.StatusUnauthorized).JSON(helper.DefaultResponse(nil, "", 0))
 	}
@@ -26,4 +26,8 @@ func (u UserHandler) UserInfo(c *fiber.Ctx) error {
 	}
 
 	return c.JSON(helper.DefaultResponse(data, "", 1))
+}
+
+func (u *UserHandler) Update(c *fiber.Ctx) error {
+	return nil
 }

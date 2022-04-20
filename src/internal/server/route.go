@@ -9,14 +9,15 @@ func (r *Server) routing() {
 	v1.Post("/login", r.authHandler.Login)
 	v1.Post("/logout", r.authHandler.Logout)
 
-	v1.Post("/register", r.registerHandler.RegisterRequest)
-	v1.Post("/register/verify", r.registerHandler.RegisterVerify)
+	v1.Post("/register", r.registerHandler.Request)
+	v1.Post("/register/verify", r.registerHandler.Verify)
 
 	v1.Post("/recovery", r.authHandler.Login)
 	v1.Post("/recovery/verify", r.authHandler.Login)
 
-	v1.Post("/refresh_token", r.refreshHandler.RefreshToken)
+	v1.Post("/refresh_token", r.refreshHandler.Refresh)
 
 	auth := v1.Use(middleware.JWTChecker)
-	auth.Get("/me", r.userHandler.UserInfo)
+	auth.Get("/me", r.userHandler.Me)
+	auth.Post("/update", r.userHandler.Update)
 }

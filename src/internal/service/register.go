@@ -21,10 +21,10 @@ func NewRegisterService(repo *repository.Repository) RegisterService {
 	}
 }
 
-func (r *register) RegisterRequest(ctx context.Context, phone string, ac *model.Activity) error {
+func (r *register) Request(ctx context.Context, phone string, ac *model.Activity) error {
 	// TODO send verify code
 	// TODO check send limit
-	user, err := r.repo.UserRepo.FindUserByPhone(ctx, phone, -1)
+	user, err := r.repo.UserRepo.FindByPhone(ctx, phone, -1)
 	if err != nil {
 		panic(err)
 	}
@@ -32,16 +32,16 @@ func (r *register) RegisterRequest(ctx context.Context, phone string, ac *model.
 		return errors.New("phone taken before")
 	}
 
-	err = r.repo.ConfirmCodeRepo.CreateConfirmCode(phone)
-	if err := r.repo.ActivityRepos.CreateActivity(ac); err != nil {
+	err = r.repo.ConfirmCodeRepo.Create(phone)
+	if err := r.repo.ActivityRepos.Create(ac); err != nil {
 		panic(err)
 	}
 	return err
 }
 
-func (r *register) RegisterVerify(ctx context.Context, phone string, code string, ac *model.Activity) (*Auth, error) {
+func (r *register) Verify(ctx context.Context, phone string, code string, ac *model.Activity) (*Auth, error) {
 	// TODO check limits
-	user, err := r.repo.UserRepo.FindUserByPhone(ctx, phone, -1)
+	user, err := r.repo.UserRepo.FindByPhone(ctx, phone, -1)
 	if err != nil {
 		panic(fmt.Sprintf("internal error, can not find user. err : %s", err.Error()))
 	}
@@ -55,10 +55,10 @@ func (r *register) RegisterVerify(ctx context.Context, phone string, code string
 	}
 
 	user = r.createUser(ctx, phone)
-	r.repo.ConfirmCodeRepo.DeleteConfirmCode(phone)
+	r.repo.ConfirmCodeRepo.Delete(phone)
 	refreshToken, token := r.generateToken(ctx, user)
 
-	if err := r.repo.ActivityRepos.CreateActivity(ac); err != nil {
+	if err := r.repo.ActivityRepos.Create(ac); err != nil {
 		panic(err)
 	}
 
@@ -81,7 +81,7 @@ func (r *register) createUser(ctx context.Context, phone string) *model.User {
 	user.LastSignInAt = &lastSeen
 	user.Status = model.USER_STATUS_ACTIVE
 
-	if err := r.repo.UserRepo.CreateOrUpdateUser(ctx, user); err != nil {
+	if err := r.repo.UserRepo.CreateOrUpdate(ctx, user); err != nil {
 		panic(fmt.Sprintf("internal error, can not find token. err : %s", err.Error()))
 	}
 
@@ -89,7 +89,7 @@ func (r *register) createUser(ctx context.Context, phone string) *model.User {
 }
 
 func (r *register) generateToken(ctx context.Context, user *model.User) (*model.RefreshToken, string) {
-	refreshToken, err := r.repo.TokenRepo.CreateToken(ctx, user)
+	refreshToken, err := r.repo.TokenRepo.Create(ctx, user)
 	if err != nil {
 		panic(fmt.Sprintf("internal error, can not create token. err : %s", err.Error()))
 	}
@@ -103,7 +103,7 @@ func (r *register) generateToken(ctx context.Context, user *model.User) (*model.
 }
 
 func (r *register) checkConfirmCode(phone string, code string) error {
-	confirm, err := r.repo.ConfirmCodeRepo.FindConfirmCode(phone)
+	confirm, err := r.repo.ConfirmCodeRepo.Find(phone)
 	if err != nil {
 		panic(fmt.Sprintf("internal error, can not find confirm code. err : %s", err.Error()))
 	}

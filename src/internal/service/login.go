@@ -22,7 +22,7 @@ func NewLoginService(repo *repository.Repository) LoginService {
 }
 
 func (l *login) Login(ctx context.Context, phone, password string, ac *model.Activity) (*Auth, error) {
-	user, err := l.repo.UserRepo.FindUserByPhone(ctx, phone, model.USER_STATUS_ACTIVE)
+	user, err := l.repo.UserRepo.FindByPhone(ctx, phone, model.USER_STATUS_ACTIVE)
 	if errors.Is(err, app.ErrNotFound) {
 		return nil, errors.New("invalid credentials")
 	}
@@ -37,8 +37,8 @@ func (l *login) Login(ctx context.Context, phone, password string, ac *model.Act
 	// }
 
 	refreshToken, token := l.generateToken(ctx, user)
-	l.repo.UserRepo.UpdateUserLastSeen(ctx, user)
-	if err := l.repo.ActivityRepos.CreateActivity(ac); err != nil {
+	l.repo.UserRepo.UpdateLastSeen(ctx, user)
+	if err := l.repo.ActivityRepos.Create(ac); err != nil {
 		panic(fmt.Sprintf("internal error, can not create activity log. err : %s", err.Error()))
 	}
 
@@ -57,7 +57,7 @@ func (*login) Logout(ctx context.Context, token string, ac *model.Activity) erro
 }
 
 func (l *login) generateToken(ctx context.Context, user *model.User) (*model.RefreshToken, string) {
-	refreshToken, err := l.repo.TokenRepo.CreateToken(ctx, user)
+	refreshToken, err := l.repo.TokenRepo.Create(ctx, user)
 	if err != nil {
 		panic(fmt.Sprintf("internal error, can not create token. err : %s", err.Error()))
 	}

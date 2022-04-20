@@ -14,7 +14,7 @@ type AuthHandler struct {
 	AuthService service.LoginService
 }
 
-func (h AuthHandler) Login(c *fiber.Ctx) error {
+func (h *AuthHandler) Login(c *fiber.Ctx) error {
 	req := new(request.LoginRequest)
 
 	if err := c.BodyParser(req); err != nil {
@@ -36,7 +36,7 @@ func (h AuthHandler) Login(c *fiber.Ctx) error {
 	return c.JSON(helper.DefaultResponse(auth, "", 1))
 }
 
-func (h AuthHandler) Logout(c *fiber.Ctx) error {
+func (h *AuthHandler) Logout(c *fiber.Ctx) error {
 	reqToken := c.GetRespHeader("Authorization")
 	splitToken := strings.Split(reqToken, "Bearer ")
 	reqToken = splitToken[1]

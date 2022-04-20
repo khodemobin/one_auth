@@ -12,7 +12,7 @@ type RegisterHandler struct {
 	RegisterService service.RegisterService
 }
 
-func (h RegisterHandler) RegisterRequest(c *fiber.Ctx) error {
+func (h *RegisterHandler) Request(c *fiber.Ctx) error {
 	req := new(request.RegisterRequest)
 
 	if err := c.BodyParser(req); err != nil {
@@ -26,7 +26,7 @@ func (h RegisterHandler) RegisterRequest(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(errors)
 	}
 
-	err := h.RegisterService.RegisterRequest(c.Context(), req.Phone, createActivity(c))
+	err := h.RegisterService.Request(c.Context(), req.Phone, createActivity(c))
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"message": err.Error(),
@@ -36,7 +36,7 @@ func (h RegisterHandler) RegisterRequest(c *fiber.Ctx) error {
 	return c.JSON(helper.DefaultResponse("", "", 1))
 }
 
-func (h RegisterHandler) RegisterVerify(c *fiber.Ctx) error {
+func (h *RegisterHandler) Verify(c *fiber.Ctx) error {
 	req := new(request.RegisterVerifyRequest)
 
 	if err := c.BodyParser(req); err != nil {
@@ -50,7 +50,7 @@ func (h RegisterHandler) RegisterVerify(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(errors)
 	}
 
-	auth, err := h.RegisterService.RegisterVerify(c.Context(), req.Phone, req.Code, createActivity(c))
+	auth, err := h.RegisterService.Verify(c.Context(), req.Phone, req.Code, createActivity(c))
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"message": err.Error(),

@@ -22,7 +22,7 @@ func NewConfirmCodeRepo() ConfirmCodeRepository {
 	}
 }
 
-func (c *confirmCode) CreateConfirmCode(phone string) error {
+func (c *confirmCode) Create(phone string) error {
 	code, originalCode, err := encrypt.GenerateConfirmCode(phone)
 	if err != nil {
 		return err
@@ -37,7 +37,7 @@ func (c *confirmCode) CreateConfirmCode(phone string) error {
 	return c.app.Cache.Set(fmt.Sprintf("user_confirm_code_%s", phone), json, code.ExpiresIn)
 }
 
-func (c *confirmCode) FindConfirmCode(phone string) (*model.ConfirmCode, error) {
+func (c *confirmCode) Find(phone string) (*model.ConfirmCode, error) {
 	result, err := c.app.Cache.Get(fmt.Sprintf("user_confirm_code_%s", phone), nil)
 	if err != nil {
 		return nil, err
@@ -53,6 +53,6 @@ func (c *confirmCode) FindConfirmCode(phone string) (*model.ConfirmCode, error) 
 	return &confirm, err
 }
 
-func (c *confirmCode) DeleteConfirmCode(phone string) error {
+func (c *confirmCode) Delete(phone string) error {
 	return c.app.Cache.Delete(fmt.Sprintf("user_confirm_code_%s", phone))
 }

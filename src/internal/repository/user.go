@@ -21,7 +21,7 @@ func NewUserRepo() UserRepository {
 	return &userRepo{}
 }
 
-func (userRepo) FindUserByUUID(ctx context.Context, uuid string, status int) (*model.User, error) {
+func (userRepo) FindByUUID(ctx context.Context, uuid string, status int) (*model.User, error) {
 	cache, err := app.Cache().Remember(fmt.Sprintf("user_by_uuid_%s", uuid), func() (*string, error) {
 		var user *model.User
 
@@ -56,7 +56,7 @@ func (userRepo) FindUserByUUID(ctx context.Context, uuid string, status int) (*m
 	return &user, nil
 }
 
-func (userRepo) FindUserByID(ctx context.Context, id uint, status int) (*model.User, error) {
+func (userRepo) FindByID(ctx context.Context, id uint, status int) (*model.User, error) {
 	cache, err := app.Cache().Remember(fmt.Sprintf("user_by_id_%d", id), func() (*string, error) {
 		var user *model.User
 
@@ -90,7 +90,7 @@ func (userRepo) FindUserByID(ctx context.Context, id uint, status int) (*model.U
 	return &user, nil
 }
 
-func (userRepo) FindUserByPhone(ctx context.Context, phone string, status int) (*model.User, error) {
+func (userRepo) FindByPhone(ctx context.Context, phone string, status int) (*model.User, error) {
 	cache, err := app.Cache().Remember(fmt.Sprintf("user_by_phone_%s", phone), func() (*string, error) {
 		var user *model.User
 
@@ -124,7 +124,7 @@ func (userRepo) FindUserByPhone(ctx context.Context, phone string, status int) (
 	return &user, nil
 }
 
-func (userRepo) UpdateUserLastSeen(ctx context.Context, user *model.User) error {
+func (userRepo) UpdateLastSeen(ctx context.Context, user *model.User) error {
 	now := time.Now()
 	user.LastSignInAt = &now
 	err := app.DB().Save(user).Error
@@ -132,7 +132,7 @@ func (userRepo) UpdateUserLastSeen(ctx context.Context, user *model.User) error 
 	return err
 }
 
-func (userRepo) CreateOrUpdateUser(ctx context.Context, user *model.User) error {
+func (userRepo) CreateOrUpdate(ctx context.Context, user *model.User) error {
 	newUser := &model.User{}
 
 	err := app.DB().Where(model.User{Phone: user.Phone}).First(&newUser).Error
@@ -150,10 +150,6 @@ func (userRepo) CreateOrUpdateUser(ctx context.Context, user *model.User) error 
 	}
 
 	return err
-}
-
-func (*userRepo) UpdatePassword(ctx context.Context, user *model.User) error {
-	panic("unimplemented")
 }
 
 func resetCache(user *model.User) {

@@ -20,8 +20,8 @@ func NewUserService(repo *repository.Repository) UserService {
 }
 
 // GetUser implements UserService
-func (u *user) GetUser(ctx context.Context, uuid string, ac *model.Activity) (*model.User, error) {
-	user, err := u.repo.UserRepo.FindUserByUUID(ctx, uuid, model.USER_STATUS_ACTIVE)
+func (u *user) Me(ctx context.Context, uuid string, ac *model.Activity) (*model.User, error) {
+	user, err := u.repo.UserRepo.FindByUUID(ctx, uuid, model.USER_STATUS_ACTIVE)
 	if errors.Is(err, app.ErrNotFound) {
 		return nil, errors.New("user not found")
 	}
@@ -30,7 +30,7 @@ func (u *user) GetUser(ctx context.Context, uuid string, ac *model.Activity) (*m
 		panic(err)
 	}
 
-	if err := u.repo.ActivityRepos.CreateActivity(ac); err != nil {
+	if err := u.repo.ActivityRepos.Create(ac); err != nil {
 		panic(err)
 	}
 
@@ -38,7 +38,7 @@ func (u *user) GetUser(ctx context.Context, uuid string, ac *model.Activity) (*m
 }
 
 // UpdateUser implements UserService
-func (u *user) UpdateUser(ctx context.Context, uuid string, user *model.User, ac *model.Activity) error {
+func (u *user) Update(ctx context.Context, uuid string, user *model.User, ac *model.Activity) error {
 	// err := u.repo.UserRepo.UpdatePassword()
 	return nil
 }

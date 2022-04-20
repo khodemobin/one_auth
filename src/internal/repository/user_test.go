@@ -16,13 +16,13 @@ func Test_Repo_FindUserById(t *testing.T) {
 	user, repo, db := initFakeUser(t)
 
 	t.Run("test find right user by id", func(t *testing.T) {
-		u, err := repo.FindUserByUUID(context.Background(), user.UUID, 1)
+		u, err := repo.FindByUUID(context.Background(), user.UUID, 1)
 		assert.NoError(t, err)
 		assert.Equal(t, u.ID, user.ID)
 	})
 
 	t.Run("test not found user by wrong id", func(t *testing.T) {
-		u, err := repo.FindUserByUUID(context.Background(), "123123", 0)
+		u, err := repo.FindByUUID(context.Background(), "123123", 0)
 		assert.Empty(t, u)
 		assert.NoError(t, err)
 	})
@@ -34,13 +34,13 @@ func Test_Repo_FindUserByPhone(t *testing.T) {
 	user, repo, db := initFakeUser(t)
 
 	t.Run("test find right user by phone", func(t *testing.T) {
-		u, err := repo.FindUserByPhone(context.Background(), user.Phone, 1)
+		u, err := repo.FindByPhone(context.Background(), user.Phone, 1)
 		assert.NoError(t, err)
 		assert.Equal(t, u.ID, user.ID)
 	})
 
 	t.Run("test not found user by wrong phone", func(t *testing.T) {
-		u, err := repo.FindUserByPhone(context.Background(), "123123", 0)
+		u, err := repo.FindByPhone(context.Background(), "123123", 0)
 		assert.Empty(t, u)
 		assert.NoError(t, err)
 	})
@@ -52,7 +52,7 @@ func Test_Repo_UpdateUserLastSeen(t *testing.T) {
 	user, repo, db := initFakeUser(t)
 	t.Run("test update user last seen after login", func(t *testing.T) {
 		// last seen should be at last 2min before and 2 min later from now after update
-		err := repo.UpdateUserLastSeen(context.Background(), user)
+		err := repo.UpdateLastSeen(context.Background(), user)
 		durationAfter, _ := time.ParseDuration("-2m")
 		after := time.Now().Add(durationAfter)
 		durationBefore, _ := time.ParseDuration("2m")
