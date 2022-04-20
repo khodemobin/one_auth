@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/khodemobin/pilo/auth/internal/model"
 	"github.com/khodemobin/pilo/auth/internal/service"
 	"github.com/khodemobin/pilo/auth/pkg/helper"
 )
@@ -19,5 +20,10 @@ func (u UserHandler) UserInfo(c *fiber.Ctx) error {
 		return c.Status(http.StatusUnauthorized).JSON(helper.DefaultResponse(nil, "", 0))
 	}
 
-	return c.JSON(helper.DefaultResponse(user, "", 1))
+	data := &model.UserResource{
+		Phone: user.Phone,
+		UUID:  user.UUID,
+	}
+
+	return c.JSON(helper.DefaultResponse(data, "", 1))
 }

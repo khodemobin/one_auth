@@ -4,7 +4,6 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"encoding/json"
-	"fmt"
 
 	"github.com/khodemobin/pilo/auth/internal/config"
 )
@@ -48,7 +47,5 @@ func DefaultResponse(data interface{}, message string, code int) struct {
 
 func ToJson(v any) (string, error) {
 	j, err := json.Marshal(v)
-
-	fmt.Println(string(j))
 	return string(j), err
 }

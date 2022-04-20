@@ -16,6 +16,7 @@ type Server struct {
 	authHandler     handler.AuthHandler
 	registerHandler handler.RegisterHandler
 	userHandler     handler.UserHandler
+	refreshHandler  handler.RefreshTokenHandler
 }
 
 func New(service *service.Service, isLocal bool) *Server {
@@ -37,6 +38,9 @@ func New(service *service.Service, isLocal bool) *Server {
 		},
 		userHandler: handler.UserHandler{
 			UserService: service.UserService,
+		},
+		refreshHandler: handler.RefreshTokenHandler{
+			RefreshTokenService: service.RefreshService,
 		},
 	}
 }

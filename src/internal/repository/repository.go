@@ -2,8 +2,12 @@ package repository
 
 import (
 	"context"
+	"errors"
 
+	"github.com/go-redis/redis/v8"
+	"github.com/khodemobin/pilo/auth/app"
 	"github.com/khodemobin/pilo/auth/internal/model"
+	"gorm.io/gorm"
 )
 
 type Repository struct {
@@ -47,5 +51,14 @@ type UserRepository interface {
 	FindUserByID(ctx context.Context, id uint, status int) (*model.User, error)
 	FindUserByPhone(ctx context.Context, phone string, status int) (*model.User, error)
 	UpdateUserLastSeen(ctx context.Context, user *model.User) error
+	UpdatePassword(ctx context.Context, user *model.User) error
 	CreateOrUpdateUser(ctx context.Context, user *model.User) error
+}
+
+func checkError(err error) error {
+	if errors.Is(err, gorm.ErrRecordNotFound) || errors.Is(err, redis.Nil) {
+		return app.ErrNotFound
+	}
+
+	return err
 }

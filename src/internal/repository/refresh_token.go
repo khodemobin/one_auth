@@ -2,12 +2,13 @@ package repository
 
 import (
 	"context"
-	"errors"
+	"encoding/json"
+	"fmt"
 
 	"github.com/khodemobin/pilo/auth/app"
 	"github.com/khodemobin/pilo/auth/internal/model"
 	"github.com/khodemobin/pilo/auth/pkg/encrypt"
-	"gorm.io/gorm"
+	"github.com/khodemobin/pilo/auth/pkg/helper"
 )
 
 type token struct{}
@@ -29,24 +30,58 @@ func (token) CreateToken(ctx context.Context, user *model.User) (*model.RefreshT
 	}
 
 	err = app.DB().Create(refreshToken).Error
+	err = checkError(err)
+	if err != nil {
+		return nil, err
+	}
+
+	jsonToken, err := helper.ToJson(refreshToken)
+	if err != nil {
+		return nil, err
+	}
+	err = app.Cache().Set(fmt.Sprintf("refresh_token_%s", refreshToken.Token), jsonToken, 0)
+
 	return refreshToken, err
 }
 
 func (token) FindToken(ctx context.Context, token string) (*model.RefreshToken, error) {
-	var t *model.RefreshToken
+	cache, err := app.Cache().Get(fmt.Sprintf("refresh_token_%s", token), func() (*string, error) {
+		var t *model.RefreshToken
 
-	err := app.DB().Where(&model.RefreshToken{
-		Revoked: false,
-		Token:   token,
-	}).First(&t).Error
+		err := app.DB().Where(&model.RefreshToken{
+			Revoked: false,
+			Token:   token,
+		}).First(&t).Error
+		err = checkError(err)
+		if err != nil {
+			return nil, err
+		}
 
-	if err == nil || errors.Is(err, gorm.ErrRecordNotFound) {
-		return t, nil
+		json, err := helper.ToJson(t)
+		if err != nil {
+			return nil, err
+		}
+
+		return &json, nil
+	})
+	if err != nil {
+		return nil, err
 	}
 
-	return nil, err
+	var refreshToken model.RefreshToken
+	err = json.Unmarshal([]byte(*cache), &refreshToken)
+	if err != nil {
+		return nil, err
+	}
+
+	return &refreshToken, nil
 }
 
 func (token) RevokeToken(ctx context.Context, token *model.RefreshToken) error {
-	return nil
+	err := app.Cache().Delete(fmt.Sprintf("refresh_token_%s", token.Token))
+	if err != nil {
+		return err
+	}
+
+	return app.DB().Model(token).Update("revoked", 1).Error
 }
