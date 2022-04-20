@@ -7,5 +7,6 @@ type Cache interface {
 	Set(key string, value interface{}, expiration time.Duration) error
 	Delete(key string) error
 	Pull(key string, defaultValue func() (*string, error)) (*string, error)
+	Remember(key string, defaultValue func() (*string, error)) (*string, error)
 	Close()
 }

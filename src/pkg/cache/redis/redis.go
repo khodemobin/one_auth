@@ -48,6 +48,19 @@ func (r *client) Get(key string, defaultValue func() (*string, error)) (*string,
 			return nil, nil
 		}
 
+		return defaultValue()
+	}
+
+	return &value, err
+}
+
+func (r *client) Remember(key string, defaultValue func() (*string, error)) (*string, error) {
+	value, err := r.rc.Get(r.ctx, helper.ToMD5(key)).Result()
+	if err == redis.Nil {
+		if defaultValue == nil {
+			return nil, nil
+		}
+
 		v, err := defaultValue()
 		if err != nil {
 			return nil, err
