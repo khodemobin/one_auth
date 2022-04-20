@@ -16,14 +16,19 @@
     <div id="app">
         <button @click="login">Login</button>
         <button @click="refreshToken">Refresh Token</button>
+        <button @click="me">Me</button>
     </div>
 
     <script>
         Vue.createApp({
             data() {
                 return {
+                    token: "",
                     message: 'Hello Vue!'
                 }
+            },
+            mounted() {
+                axios.defaults.withCredentials = true
             },
             methods: {
                 async login() {
@@ -32,6 +37,7 @@
                             "phone": "09384642495",
                             "password": "123456"
                         })
+                        this.token = res.data.data.token
                         console.log(res.data)
                     } catch (error) {
                         console.log(error);
@@ -39,8 +45,19 @@
                 },
                 async refreshToken() {
                     try {
-                        axios.defaults.withCredentials = true
                         res = await axios.post('http://127.0.0.1:3000/api/v1/refresh_token')
+                        console.log(res.data)
+                    } catch (error) {
+                        console.log(error);
+                    }
+                },
+                async me() {
+                    try {
+                        res = await axios.get('http://127.0.0.1:3000/api/v1/me', {
+                            headers: {
+                                "Authorization": `Bearer ${this.token}`
+                            }
+                        })
                         console.log(res.data)
                     } catch (error) {
                         console.log(error);
