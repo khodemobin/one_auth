@@ -46,8 +46,8 @@ type RegisterService interface {
 }
 
 type UserService interface {
-	Me(ctx context.Context, uuid string, ac *model.Activity) (*model.User, error)
-	Update(ctx context.Context, uuid string, user *model.User, ac *model.Activity) error
+	Me(ctx context.Context, uuid string) (*model.User, error)
+	Update(ctx context.Context, uuid string, password string, confirm string, ac *model.Activity) error
 }
 
 type RefreshTokenService interface {

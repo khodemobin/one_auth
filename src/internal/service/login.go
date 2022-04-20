@@ -31,10 +31,9 @@ func (l *login) Login(ctx context.Context, phone, password string, ac *model.Act
 		panic(fmt.Sprintf("internal error, can find user. err : %s", err.Error()))
 	}
 
-	// TODO active password check
-	// if !encrypt.Check(*user.Password, password) {
-	// 	return nil, errors.New("invalid credentials")
-	// }
+	if !encrypt.Check(*user.Password, password) {
+		return nil, errors.New("invalid credentials")
+	}
 
 	refreshToken, token := l.generateToken(ctx, user)
 	l.repo.UserRepo.UpdateLastSeen(ctx, user)
