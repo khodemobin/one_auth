@@ -24,6 +24,7 @@ func createActivity(c *fiber.Ctx) *model.Activity {
 }
 
 func createLoginCookie(c *fiber.Ctx, auth *service.Auth) {
+	c.ClearCookie("refresh_token")
 	c.Cookie(&fiber.Cookie{
 		Name:     "refresh_token",
 		Value:    auth.RefreshToken.Token,
