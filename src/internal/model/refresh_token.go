@@ -7,7 +7,7 @@ import (
 )
 
 type RefreshToken struct {
-	ID        uint           `gorm:"primarykey" faker:"-"`
+	ID        uint           `gorm:"primarykey" db:"id" faker:"-"`
 	Token     string         `db:"token"`
 	UserID    uint           `db:"user_id"`
 	Revoked   bool           `db:"revoked"`

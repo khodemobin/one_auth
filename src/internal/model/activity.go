@@ -1,7 +1,7 @@
 package model
 
 type Activity struct {
-	ID        uint   `gorm:"primarykey" faker:"-"`
+	ID        uint   `gorm:"primarykey" db:"id" faker:"-"`
 	Action    string `db:"action" faker:"-"`
 	IP        string `db:"ip" faker:"-"`
 	Path      string `db:"path" faker:"-"`

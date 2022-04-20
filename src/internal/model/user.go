@@ -14,19 +14,24 @@ const (
 )
 
 type User struct {
-	ID           uint           `gorm:"primarykey" faker:"-" json:"-"`
+	ID           uint           `gorm:"primarykey" db:"id" faker:"-"`
 	UUID         string         `db:"uuid" faker:"uuid_digit"`
-	Phone        string         `json:"phone" db:"phone" faker:"phone_number"`
-	Password     *string        `json:"-" db:"password" faker:"password" `
-	ConfirmedAt  *time.Time     `json:"-" db:"confirmed_at" faker:"-"`
-	Role         *string        `json:"-" db:"role" faker:"-"`
-	Status       int            `json:"-" db:"status" faker:"-"`
-	IsSuperAdmin bool           `json:"-" db:"is_super_admin" faker:"-"`
-	LastSignInAt *time.Time     `json:"-" db:"last_sign_in_at" faker:"-"`
-	CreatedAt    time.Time      `json:"-" faker:"-"`
-	UpdatedAt    time.Time      `json:"-" faker:"-"`
-	DeletedAt    gorm.DeletedAt `json:"-" gorm:"index" faker:"-"`
-	Tokens       []RefreshToken `json:"-" faker:"-"`
+	Phone        string         `db:"phone" faker:"phone_number"`
+	Password     *string        `db:"password" faker:"password" `
+	ConfirmedAt  *time.Time     `db:"confirmed_at" faker:"-"`
+	Role         *string        `db:"role" faker:"-"`
+	Status       int            `db:"status" faker:"-"`
+	IsSuperAdmin bool           `db:"is_super_admin" faker:"-"`
+	LastSignInAt *time.Time     `db:"last_sign_in_at" faker:"-"`
+	CreatedAt    time.Time      `faker:"-"`
+	UpdatedAt    time.Time      `faker:"-"`
+	DeletedAt    gorm.DeletedAt `gorm:"index" faker:"-"`
+	Tokens       []RefreshToken `faker:"-"`
+}
+
+type UserResource struct {
+	Phone string `json:"phone"`
+	UUID  string `json:"uuid"`
 }
 
 func (u User) SeedUser() (*User, error) {
