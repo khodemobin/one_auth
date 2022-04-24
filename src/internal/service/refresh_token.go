@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"fmt"
+	"sync"
 	"time"
 
 	"github.com/go-errors/errors"
@@ -14,6 +15,7 @@ import (
 
 type refresh struct {
 	repo *repository.Repository
+	wg   sync.WaitGroup
 }
 
 func NewRefreshTokenService(repo *repository.Repository) RefreshTokenService {
@@ -38,11 +40,17 @@ func (r *refresh) Refresh(ctx context.Context, tokenString string, ac *model.Act
 	}
 
 	refreshToken, token := r.generateToken(ctx, user)
-	r.deleteRefreshToken(ctx, currentToken)
 
-	if err := r.repo.ActivityRepos.Create(ac); err != nil {
-		panic(fmt.Sprintf("internal error, can not create activity log. err : %s", err.Error()))
-	}
+	r.wg.Add(2)
+	go func() {
+		r.deleteRefreshToken(ctx, currentToken)
+		r.wg.Done()
+	}()
+	go func() {
+		r.createLog(ac)
+		r.wg.Done()
+	}()
+	r.wg.Wait()
 
 	return &Auth{
 		Token: token,
@@ -89,5 +97,11 @@ func (r *refresh) generateToken(ctx context.Context, user *model.User) (*model.R
 func (r *refresh) deleteRefreshToken(ctx context.Context, token *model.RefreshToken) {
 	if err := r.repo.TokenRepo.Revoke(ctx, token); err != nil {
 		panic(fmt.Sprintf("internal error, can not delete refresh token from db. err : %s", err.Error()))
+	}
+}
+
+func (r *refresh) createLog(ac *model.Activity) {
+	if err := r.repo.ActivityRepos.Create(ac); err != nil {
+		panic(fmt.Sprintf("internal error, can not create activity log. err : %s", err.Error()))
 	}
 }

@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"fmt"
+	"sync"
 	"time"
 
 	"github.com/go-errors/errors"
@@ -13,6 +14,7 @@ import (
 
 type register struct {
 	repo *repository.Repository
+	wg   sync.WaitGroup
 }
 
 func NewRegisterService(repo *repository.Repository) RegisterService {
@@ -55,12 +57,23 @@ func (r *register) Verify(ctx context.Context, phone string, code string, ac *mo
 	}
 
 	user = r.createUser(ctx, phone)
-	r.repo.ConfirmCodeRepo.Delete(phone)
 	refreshToken, token := r.generateToken(ctx, user)
 
-	if err := r.repo.ActivityRepos.Create(ac); err != nil {
-		panic(err)
-	}
+	r.wg.Add(2)
+	go func() {
+		if err := r.repo.ConfirmCodeRepo.Delete(phone); err != nil {
+			panic(fmt.Sprintf("internal error, can not delete confirm code. err : %s", err.Error()))
+		}
+		r.wg.Done()
+	}()
+
+	go func() {
+		if err := r.repo.ActivityRepos.Create(ac); err != nil {
+			panic(fmt.Sprintf("internal error, can not create activity log. err : %s", err.Error()))
+		}
+		r.wg.Done()
+	}()
+	r.wg.Wait()
 
 	return &Auth{
 		Token: token,

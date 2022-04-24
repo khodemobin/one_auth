@@ -19,6 +19,8 @@ type Service struct {
 	RegisterService RegisterService
 	UserService     UserService
 	RefreshService  RefreshTokenService
+
+	Repo *repository.Repository
 }
 
 func NewService(repo *repository.Repository) *Service {
@@ -32,6 +34,7 @@ func NewService(repo *repository.Repository) *Service {
 		RegisterService: register,
 		UserService:     user,
 		RefreshService:  refresh,
+		Repo:            repo,
 	}
 }
 
