@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"log"
 	"net/http"
 
 	"github.com/gofiber/fiber/v2"
@@ -15,7 +14,6 @@ type RefreshTokenHandler struct {
 
 func (h *RefreshTokenHandler) Refresh(c *fiber.Ctx) error {
 	token := c.Cookies("refresh_token")
-	log.Println(token)
 	auth, err := h.RefreshTokenService.Refresh(c.Context(), token, createActivity(c))
 	if err != nil {
 		return c.Status(http.StatusUnauthorized).JSON(helper.DefaultResponse(nil, "", 0))

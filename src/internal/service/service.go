@@ -40,7 +40,7 @@ func NewService(repo *repository.Repository) *Service {
 
 type LoginService interface {
 	Login(ctx context.Context, phone, password string, ac *model.Activity) (*Auth, error)
-	Logout(ctx context.Context, token string, ac *model.Activity) error
+	Logout(ctx context.Context, accessToken string, token string, ac *model.Activity) error
 }
 
 type RegisterService interface {

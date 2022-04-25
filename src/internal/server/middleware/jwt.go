@@ -1,10 +1,12 @@
 package middleware
 
 import (
+	"fmt"
 	"net/http"
 	"regexp"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/khodemobin/pilo/auth/app"
 	"github.com/khodemobin/pilo/auth/pkg/encrypt"
 	"github.com/khodemobin/pilo/auth/pkg/helper"
 )
@@ -28,7 +30,26 @@ func JWTChecker(c *fiber.Ctx) error {
 		return c.Status(http.StatusUnauthorized).JSON(helper.DefaultResponse(nil, "", 0))
 	}
 
+	exists, err := checkBlackList(matches[1])
+	if err != nil {
+		panic(err)
+	}
+
+	if exists {
+		c.ClearCookie("refresh_token")
+		return c.Status(http.StatusUnauthorized).JSON(helper.DefaultResponse(nil, "", 0))
+	}
+
 	c.Locals("user_uuid", uuid)
 
 	return c.Next()
+}
+
+func checkBlackList(token string) (bool, error) {
+	value, err := app.Cache().Get(fmt.Sprintf("black_list_%s", token), nil)
+	if err != nil {
+		return false, err
+	}
+
+	return value != nil, nil
 }

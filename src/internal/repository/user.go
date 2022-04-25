@@ -47,7 +47,7 @@ func (u *userRepo) FindActive(ctx context.Context, column string, value string) 
 		return user, err
 	}
 
-	err = app.DB().Where(column+" = ? ", value).Where("is_active", 1).First(user).Error
+	err = app.DB().Where(column+" = ? ", value).Where("is_active", 1).First(&user).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, app.ErrNotFound
 	} else if err != nil {

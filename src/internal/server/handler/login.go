@@ -37,11 +37,12 @@ func (h *AuthHandler) Login(c *fiber.Ctx) error {
 }
 
 func (h *AuthHandler) Logout(c *fiber.Ctx) error {
-	reqToken := c.GetRespHeader("Authorization")
+	reqToken := c.Get("Authorization")
 	splitToken := strings.Split(reqToken, "Bearer ")
-	reqToken = splitToken[1]
+	accessToken := splitToken[1]
+	token := c.Cookies("refresh_token")
 
-	err := h.AuthService.Logout(c.Context(), reqToken, createActivity(c))
+	err := h.AuthService.Logout(c.Context(), accessToken, token, createActivity(c))
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(helper.DefaultResponse(nil, err.Error(), 0))
 	}

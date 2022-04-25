@@ -14,7 +14,8 @@ type Repository struct {
 	UserRepo        UserRepository
 	TokenRepo       TokenRepository
 	ConfirmCodeRepo ConfirmCodeRepository
-	ActivityRepos   ActivityRepository
+	ActivityRepo    ActivityRepository
+	AccessTokenRepo AccessTokenRepository
 }
 
 func NewRepository() *Repository {
@@ -22,11 +23,13 @@ func NewRepository() *Repository {
 	tp := NewTokenRepo()
 	cp := NewConfirmCodeRepo()
 	ap := NewActivityRepo()
+	at := NewAccessTokenRepo()
 	return &Repository{
 		UserRepo:        up,
 		TokenRepo:       tp,
 		ConfirmCodeRepo: cp,
-		ActivityRepos:   ap,
+		ActivityRepo:    ap,
+		AccessTokenRepo: at,
 	}
 }
 
@@ -44,6 +47,11 @@ type TokenRepository interface {
 	Create(ctx context.Context, user *model.User) (*model.RefreshToken, error)
 	Find(ctx context.Context, token string) (*model.RefreshToken, error)
 	Revoke(ctx context.Context, token *model.RefreshToken) error
+}
+
+type AccessTokenRepository interface {
+	AddToBlacklist(token string) error
+	ExistsInBlackList(token string) (bool, error)
 }
 
 type UserRepository interface {

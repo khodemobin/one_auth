@@ -14,7 +14,6 @@ import (
 
 type register struct {
 	repo *repository.Repository
-	wg   sync.WaitGroup
 }
 
 func NewRegisterService(repo *repository.Repository) RegisterService {
@@ -34,7 +33,7 @@ func (r *register) Request(ctx context.Context, phone string, ac *model.Activity
 	}
 
 	err = r.repo.ConfirmCodeRepo.Create(phone)
-	if err := r.repo.ActivityRepos.Create(ac); err != nil {
+	if err := r.repo.ActivityRepo.Create(ac); err != nil {
 		panic(err)
 	}
 	return err
@@ -58,21 +57,22 @@ func (r *register) Verify(ctx context.Context, phone string, code string, ac *mo
 	user := r.createUser(ctx, phone)
 	refreshToken, token := r.generateToken(ctx, user)
 
-	r.wg.Add(2)
+	var wg sync.WaitGroup
+	wg.Add(2)
 	go func() {
 		if err := r.repo.ConfirmCodeRepo.Delete(phone); err != nil {
 			panic(fmt.Sprintf("internal error, can not delete confirm code. err : %s", err.Error()))
 		}
-		r.wg.Done()
+		wg.Done()
 	}()
 
 	go func() {
-		if err := r.repo.ActivityRepos.Create(ac); err != nil {
+		if err := r.repo.ActivityRepo.Create(ac); err != nil {
 			panic(fmt.Sprintf("internal error, can not create activity log. err : %s", err.Error()))
 		}
-		r.wg.Done()
+		wg.Done()
 	}()
-	r.wg.Wait()
+	wg.Wait()
 
 	return &Auth{
 		Token: token,

@@ -15,7 +15,6 @@ import (
 
 type refresh struct {
 	repo *repository.Repository
-	wg   sync.WaitGroup
 }
 
 func NewRefreshTokenService(repo *repository.Repository) RefreshTokenService {
@@ -30,7 +29,7 @@ func (r *refresh) Refresh(ctx context.Context, tokenString string, ac *model.Act
 		return nil, err
 	}
 
-	user, err := r.repo.UserRepo.FindActive(ctx, "id", string(currentToken.UserID))
+	user, err := r.repo.UserRepo.FindActive(ctx, "id", fmt.Sprint(currentToken.UserID))
 	if errors.Is(err, app.ErrNotFound) {
 		return nil, errors.New("invalid refresh token")
 	} else if err != nil {
@@ -38,17 +37,17 @@ func (r *refresh) Refresh(ctx context.Context, tokenString string, ac *model.Act
 	}
 
 	refreshToken, token := r.generateToken(ctx, user)
-
-	r.wg.Add(2)
+	var wg sync.WaitGroup
+	wg.Add(2)
 	go func() {
 		r.deleteRefreshToken(ctx, currentToken)
-		r.wg.Done()
+		wg.Done()
 	}()
 	go func() {
 		r.createLog(ac)
-		r.wg.Done()
+		wg.Done()
 	}()
-	r.wg.Wait()
+	wg.Wait()
 
 	return &Auth{
 		Token: token,
@@ -99,7 +98,7 @@ func (r *refresh) deleteRefreshToken(ctx context.Context, token *model.RefreshTo
 }
 
 func (r *refresh) createLog(ac *model.Activity) {
-	if err := r.repo.ActivityRepos.Create(ac); err != nil {
+	if err := r.repo.ActivityRepo.Create(ac); err != nil {
 		panic(fmt.Sprintf("internal error, can not create activity log. err : %s", err.Error()))
 	}
 }

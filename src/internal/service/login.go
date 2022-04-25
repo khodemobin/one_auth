@@ -14,7 +14,6 @@ import (
 
 type login struct {
 	repo *repository.Repository
-	wg   sync.WaitGroup
 }
 
 func NewLoginService(repo *repository.Repository) LoginService {
@@ -50,7 +49,36 @@ func (l *login) Login(ctx context.Context, phone, password string, ac *model.Act
 	}, nil
 }
 
-func (*login) Logout(ctx context.Context, token string, ac *model.Activity) error {
+func (l *login) Logout(ctx context.Context, accessToken string, token string, ac *model.Activity) error {
+	currentToken, err := l.repo.TokenRepo.Find(ctx, token)
+	if err != nil && !errors.Is(err, app.ErrNotFound) {
+		panic(fmt.Sprintf("internal error, can not find refresh token from db. err : %s", err.Error()))
+	}
+
+	var wg sync.WaitGroup
+	wg.Add(2)
+	if !errors.Is(err, app.ErrNotFound) {
+		wg.Add(1)
+		go func() {
+			if err := l.repo.TokenRepo.Revoke(ctx, currentToken); err != nil {
+				panic(fmt.Sprintf("internal error, can not delete refresh token from db. err : %s", err.Error()))
+			}
+			wg.Done()
+		}()
+	}
+	go func() {
+		if err := l.repo.AccessTokenRepo.AddToBlacklist(accessToken); err != nil {
+			panic(fmt.Sprintf("internal error, can not add access token to blacklist. err : %s", err.Error()))
+		}
+		wg.Done()
+	}()
+	go func() {
+		if err := l.repo.ActivityRepo.Create(ac); err != nil {
+			panic(fmt.Sprintf("internal error, can not create activity log. err : %s", err.Error()))
+		}
+		wg.Done()
+	}()
+	wg.Wait()
 	return nil
 }
 
@@ -69,21 +97,22 @@ func (l *login) generateToken(ctx context.Context, user *model.User) (*model.Ref
 }
 
 func (l *login) updateUserStatics(ctx context.Context, user *model.User, ac *model.Activity) {
-	l.wg.Add(2)
+	var wg sync.WaitGroup
+	wg.Add(2)
 
 	go func() {
 		if err := l.repo.UserRepo.UpdateLastSeen(ctx, user); err != nil {
 			panic(fmt.Sprintf("internal error, can not update user last seen err : %s", err.Error()))
 		}
-		l.wg.Done()
+		wg.Done()
 	}()
 
 	go func() {
-		if err := l.repo.ActivityRepos.Create(ac); err != nil {
+		if err := l.repo.ActivityRepo.Create(ac); err != nil {
 			panic(fmt.Sprintf("internal error, can not create activity log. err : %s", err.Error()))
 		}
-		l.wg.Done()
+		wg.Done()
 	}()
 
-	l.wg.Wait()
+	wg.Wait()
 }

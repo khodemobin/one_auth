@@ -7,7 +7,6 @@ func (r *Server) routing() {
 	v1 := api.Group("/v1")
 
 	v1.Post("/login", r.authHandler.Login)
-	v1.Post("/logout", r.authHandler.Logout)
 
 	v1.Post("/register", r.registerHandler.Request)
 	v1.Post("/register/verify", r.registerHandler.Verify)
@@ -20,4 +19,5 @@ func (r *Server) routing() {
 	auth := v1.Use(middleware.JWTChecker)
 	auth.Get("/me", r.userHandler.Me)
 	auth.Post("/update", r.userHandler.Update)
+	auth.Post("/logout", r.authHandler.Logout)
 }
