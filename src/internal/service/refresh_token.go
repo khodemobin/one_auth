@@ -30,12 +30,10 @@ func (r *refresh) Refresh(ctx context.Context, tokenString string, ac *model.Act
 		return nil, err
 	}
 
-	user, err := r.repo.UserRepo.FindByID(ctx, currentToken.UserID, 1)
+	user, err := r.repo.UserRepo.FindActive(ctx, "id", string(currentToken.UserID))
 	if errors.Is(err, app.ErrNotFound) {
 		return nil, errors.New("invalid refresh token")
-	}
-
-	if err != nil {
+	} else if err != nil {
 		panic(fmt.Sprintf("internal error, can not create token. err : %s", err.Error()))
 	}
 

@@ -21,32 +21,26 @@ func NewUserService(repo *repository.Repository) UserService {
 	}
 }
 
-// GetUser implements UserService
 func (u *user) Me(ctx context.Context, uuid string) (*model.User, error) {
-	user, err := u.repo.UserRepo.FindByUUID(ctx, uuid, model.USER_STATUS_ACTIVE)
+	user, err := u.repo.UserRepo.FindActive(ctx, "uuid", uuid)
 	if errors.Is(err, app.ErrNotFound) {
 		return nil, errors.New("user not found")
-	}
-
-	if err != nil {
+	} else if err != nil {
 		panic(fmt.Sprintf("internal error, can not find user from db. err : %s", err.Error()))
 	}
 
 	return user, err
 }
 
-// Update implements UserService
 func (u *user) Update(ctx context.Context, uuid string, password string, confirm string, ac *model.Activity) error {
 	if password != confirm {
 		return errors.New("password and confirm password are not equals")
 	}
 
-	user, err := u.repo.UserRepo.FindByUUID(ctx, uuid, model.USER_STATUS_ACTIVE)
+	user, err := u.repo.UserRepo.FindActive(ctx, "uuid", uuid)
 	if errors.Is(err, app.ErrNotFound) {
 		return errors.New("user not found")
-	}
-
-	if err != nil {
+	} else if err != nil {
 		panic(fmt.Sprintf("internal error, can not find user from db. err : %s", err.Error()))
 	}
 
@@ -56,7 +50,7 @@ func (u *user) Update(ctx context.Context, uuid string, password string, confirm
 	}
 
 	user.Password = &p
-	err = u.repo.UserRepo.CreateOrUpdate(ctx, user)
+	_, err = u.repo.UserRepo.Update(ctx, user)
 	if err != nil {
 		panic(fmt.Sprintf("internal error, can not update user password from db. err : %s", err.Error()))
 	}

@@ -23,7 +23,7 @@ func (u *UserHandler) Me(c *fiber.Ctx) error {
 	}
 
 	data := &model.UserResource{
-		Phone: user.Phone,
+		Phone: *user.Phone,
 		UUID:  user.UUID,
 	}
 

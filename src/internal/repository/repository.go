@@ -47,11 +47,14 @@ type TokenRepository interface {
 }
 
 type UserRepository interface {
-	FindByUUID(ctx context.Context, uuid string, status int) (*model.User, error)
-	FindByID(ctx context.Context, id uint, status int) (*model.User, error)
-	FindByPhone(ctx context.Context, phone string, status int) (*model.User, error)
+	Find(ctx context.Context, column string, value string) (*model.User, error)
+	FindActive(ctx context.Context, column string, value string) (*model.User, error)
 	UpdateLastSeen(ctx context.Context, user *model.User) error
-	CreateOrUpdate(ctx context.Context, user *model.User) error
+	Create(ctx context.Context, user *model.User) (*model.User, error)
+	Update(ctx context.Context, user *model.User) (*model.User, error)
+	ExistsByPhone(ctx context.Context, phone string) (bool, error)
+	ExistsByID(ctx context.Context, id uint) (bool, error)
+	ExistsByUUID(ctx context.Context, uuid string) (bool, error)
 }
 
 func checkError(err error) error {

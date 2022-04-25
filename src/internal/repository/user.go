@@ -7,8 +7,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/google/uuid"
-
 	"github.com/khodemobin/pilo/auth/app"
 	"github.com/khodemobin/pilo/auth/internal/model"
 	"github.com/khodemobin/pilo/auth/pkg/helper"
@@ -21,139 +19,112 @@ func NewUserRepo() UserRepository {
 	return &userRepo{}
 }
 
-func (userRepo) FindByUUID(ctx context.Context, uuid string, status int) (*model.User, error) {
-	cache, err := app.Cache().Remember(fmt.Sprintf("user_by_uuid_%s", uuid), func() (*string, error) {
-		var user *model.User
-
-		findQ := &model.User{UUID: uuid}
-		if status != -1 {
-			findQ.Status = status
-		}
-
-		err := app.DB().Where(findQ).First(&user).Error
-		err = checkError(err)
-		if err != nil {
-			return nil, err
-		}
-
-		json, err := helper.ToJson(user)
-		if err != nil {
-			return nil, err
-		}
-
-		return &json, nil
-	})
-	if err != nil {
-		return nil, err
-	}
-
+func (u *userRepo) Find(ctx context.Context, column string, value string) (*model.User, error) {
 	var user model.User
-	err = json.Unmarshal([]byte(*cache), &user)
+
+	cache, err := u.getFromCache(column, value)
 	if err != nil {
+		return cache, err
+	}
+
+	err = app.DB().Where(column+" = ? ", value).First(&user).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, app.ErrNotFound
+	} else if err != nil {
 		return nil, err
 	}
 
-	return &user, nil
+	err = u.saveToCache(&user, column, value)
+
+	return &user, err
 }
 
-func (userRepo) FindByID(ctx context.Context, id uint, status int) (*model.User, error) {
-	cache, err := app.Cache().Remember(fmt.Sprintf("user_by_id_%d", id), func() (*string, error) {
-		var user *model.User
+func (u *userRepo) FindActive(ctx context.Context, column string, value string) (*model.User, error) {
+	var user *model.User
 
-		findQ := &model.User{ID: id}
-		if status != -1 {
-			findQ.Status = status
-		}
-		err := app.DB().Where(findQ).First(&user).Error
-		err = checkError(err)
-		if err != nil {
-			return nil, err
-		}
+	user, err := u.getFromCache(column, value)
+	if err != nil && user.IsActive {
+		return user, err
+	}
 
-		json, err := helper.ToJson(user)
-		if err != nil {
-			return nil, err
-		}
-
-		return &json, nil
-	})
-	if err != nil {
+	err = app.DB().Where(column+" = ? ", value).Where("is_active", 1).First(user).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, app.ErrNotFound
+	} else if err != nil {
 		return nil, err
 	}
 
-	var user model.User
-	err = json.Unmarshal([]byte(*cache), &user)
-	if err != nil {
-		return nil, err
-	}
+	err = u.saveToCache(user, column, value)
 
-	return &user, nil
+	return user, err
 }
 
-func (userRepo) FindByPhone(ctx context.Context, phone string, status int) (*model.User, error) {
-	cache, err := app.Cache().Remember(fmt.Sprintf("user_by_phone_%s", phone), func() (*string, error) {
-		var user *model.User
-
-		findQ := &model.User{Phone: phone}
-		if status != -1 {
-			findQ.Status = status
-		}
-		err := app.DB().Where(findQ).First(&user).Error
-		err = checkError(err)
-		if err != nil {
-			return nil, err
-		}
-
-		json, err := helper.ToJson(user)
-		if err != nil {
-			return nil, err
-		}
-
-		return &json, nil
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	var user model.User
-	err = json.Unmarshal([]byte(*cache), &user)
-	if err != nil {
-		return nil, err
-	}
-
-	return &user, nil
-}
-
-func (userRepo) UpdateLastSeen(ctx context.Context, user *model.User) error {
+func (u *userRepo) UpdateLastSeen(ctx context.Context, user *model.User) error {
 	now := time.Now()
 	user.LastSignInAt = &now
-	err := app.DB().Save(user).Error
-	resetCache(user)
+	_, err := u.Update(ctx, user)
 	return err
 }
 
-func (userRepo) CreateOrUpdate(ctx context.Context, user *model.User) error {
-	newUser := &model.User{}
+func (u *userRepo) Update(ctx context.Context, user *model.User) (*model.User, error) {
+	err := app.DB().Save(user).Error
+	if err != nil {
+		return nil, err
+	}
+	u.resetCache(user)
+	return user, nil
+}
 
-	err := app.DB().Where(model.User{Phone: user.Phone}).First(&newUser).Error
+func (*userRepo) Create(ctx context.Context, user *model.User) (*model.User, error) {
+	err := app.DB().Create(user).Error
+	if err != nil {
+		return nil, err
+	}
+	return user, nil
+}
 
-	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+func (*userRepo) ExistsByID(ctx context.Context, id uint) (bool, error) {
+	var count int64
+	err := app.DB().Table("users").Where("id = ?", id).Count(&count).Error
+
+	return count > 0, err
+}
+
+func (*userRepo) ExistsByPhone(ctx context.Context, phone string) (bool, error) {
+	var count int64
+	err := app.DB().Table("users").Where("phone = ?", phone).Count(&count).Error
+
+	return count > 0, err
+}
+
+func (*userRepo) ExistsByUUID(ctx context.Context, uuid string) (bool, error) {
+	var count int64
+	err := app.DB().Table("users").Where("uuid = ?", uuid).Count(&count).Error
+
+	return count > 0, err
+}
+
+func (*userRepo) resetCache(user *model.User) {
+	app.Cache().Delete(fmt.Sprintf("user_by_uuid_%s", user.UUID))
+	app.Cache().Delete(fmt.Sprintf("user_by_id_%d", user.ID))
+	app.Cache().Delete(fmt.Sprintf("user_by_uuid_%s", *user.Phone))
+}
+
+func (*userRepo) getFromCache(column, value string) (*model.User, error) {
+	var user model.User
+	cache, err := app.Cache().Get(fmt.Sprintf("user_by_%s_%s", column, value), nil)
+	if err == nil && cache != nil {
+		err = json.Unmarshal([]byte(*cache), &user)
+		return &user, err
+	}
+	return nil, err
+}
+
+func (u *userRepo) saveToCache(user *model.User, column string, value string) error {
+	json, err := helper.ToJson(user)
+	if err != nil {
 		return err
 	}
 
-	if err != nil {
-		user.UUID = uuid.New().String()
-		err = app.DB().Create(&user).Error
-	} else {
-		err = app.DB().Model(&newUser).Updates(user).Error
-		resetCache(user)
-	}
-
-	return err
-}
-
-func resetCache(user *model.User) {
-	app.Cache().Delete(fmt.Sprintf("user_by_uuid_%s", user.UUID))
-	app.Cache().Delete(fmt.Sprintf("user_by_id_%d", user.ID))
-	app.Cache().Delete(fmt.Sprintf("user_by_uuid_%s", user.Phone))
+	return app.Cache().Set(fmt.Sprintf("user_by_%s_%s", column, value), json, 0)
 }

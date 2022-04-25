@@ -33,7 +33,7 @@ func (c *confirmCode) Create(phone string) error {
 	if err != nil {
 		return err
 	}
-
+	log.Println(fmt.Sprintf("user_confirm_code_%s", phone))
 	return c.app.Cache.Set(fmt.Sprintf("user_confirm_code_%s", phone), json, code.ExpiresIn)
 }
 

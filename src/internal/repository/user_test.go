@@ -34,7 +34,7 @@ func Test_Repo_FindUserByPhone(t *testing.T) {
 	user, repo, db := initFakeUser(t)
 
 	t.Run("test find right user by phone", func(t *testing.T) {
-		u, err := repo.FindByPhone(context.Background(), user.Phone, 1)
+		u, err := repo.FindByPhone(context.Background(), *user.Phone, 1)
 		assert.NoError(t, err)
 		assert.Equal(t, u.ID, user.ID)
 	})

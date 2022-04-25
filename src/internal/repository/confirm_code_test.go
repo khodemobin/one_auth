@@ -14,10 +14,10 @@ import (
 func Test_Repo_CreateConfirmCode(t *testing.T) {
 	user, repo, cache := initFakeConfirmCode(t)
 	t.Run("test create confirm code for phone number", func(t *testing.T) {
-		err := repo.Create(user.Phone)
+		err := repo.Create(*user.Phone)
 		assert.NoError(t, err)
 
-		result, err := cache.Get(fmt.Sprintf("user_confirm_code_%s", user.Phone), nil)
+		result, err := cache.Get(fmt.Sprintf("user_confirm_code_%s", *user.Phone), nil)
 		assert.NoError(t, err)
 		assert.NotNil(t, result)
 	})
@@ -27,10 +27,10 @@ func Test_Repo_FindConfirmCode(t *testing.T) {
 	user, repo, _ := initFakeConfirmCode(t)
 
 	t.Run("test find confirm code from phone number", func(t *testing.T) {
-		err := repo.Create(user.Phone)
+		err := repo.Create(*user.Phone)
 		assert.NoError(t, err)
 
-		result, err := repo.Find(user.Phone)
+		result, err := repo.Find(*user.Phone)
 		assert.NoError(t, err)
 		assert.NotNil(t, result)
 	})
@@ -40,13 +40,13 @@ func Test_Repo_DeleteConfirmCode(t *testing.T) {
 	user, repo, cache := initFakeConfirmCode(t)
 
 	t.Run("test delete confirm code from phone number", func(t *testing.T) {
-		err := repo.Create(user.Phone)
+		err := repo.Create(*user.Phone)
 		assert.NoError(t, err)
 
-		err = repo.Delete(user.Phone)
+		err = repo.Delete(*user.Phone)
 		assert.NoError(t, err)
 
-		result, err := cache.Get(fmt.Sprintf("user_confirm_code_%s", user.Phone), nil)
+		result, err := cache.Get(fmt.Sprintf("user_confirm_code_%s", *user.Phone), nil)
 		assert.NoError(t, err)
 		assert.Nil(t, result)
 	})

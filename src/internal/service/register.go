@@ -26,11 +26,10 @@ func NewRegisterService(repo *repository.Repository) RegisterService {
 func (r *register) Request(ctx context.Context, phone string, ac *model.Activity) error {
 	// TODO send verify code
 	// TODO check send limit
-	user, err := r.repo.UserRepo.FindByPhone(ctx, phone, -1)
+	exists, err := r.repo.UserRepo.ExistsByPhone(ctx, phone)
 	if err != nil {
-		panic(err)
-	}
-	if user.ID != 0 {
+		panic(fmt.Sprintf("internal error, can not check user exists in  db. err : %s", err.Error()))
+	} else if exists {
 		return errors.New("phone taken before")
 	}
 
@@ -43,12 +42,12 @@ func (r *register) Request(ctx context.Context, phone string, ac *model.Activity
 
 func (r *register) Verify(ctx context.Context, phone string, code string, ac *model.Activity) (*Auth, error) {
 	// TODO check limits
-	user, err := r.repo.UserRepo.FindByPhone(ctx, phone, -1)
+	exists, err := r.repo.UserRepo.ExistsByPhone(ctx, phone)
 	if err != nil {
-		panic(fmt.Sprintf("internal error, can not find user. err : %s", err.Error()))
+		panic(fmt.Sprintf("internal error, can not check user exists in  db. err : %s", err.Error()))
 	}
 
-	if user.ID != 0 {
+	if exists {
 		return nil, errors.New("user verified!")
 	}
 
@@ -56,7 +55,7 @@ func (r *register) Verify(ctx context.Context, phone string, code string, ac *mo
 		return nil, err
 	}
 
-	user = r.createUser(ctx, phone)
+	user := r.createUser(ctx, phone)
 	refreshToken, token := r.generateToken(ctx, user)
 
 	r.wg.Add(2)
@@ -88,13 +87,12 @@ func (r *register) Verify(ctx context.Context, phone string, code string, ac *mo
 func (r *register) createUser(ctx context.Context, phone string) *model.User {
 	lastSeen := time.Now()
 	user := &model.User{
-		Phone: phone,
+		Phone:        &phone,
+		LastSignInAt: &lastSeen,
+		IsActive:     true,
 	}
-	user.Phone = phone
-	user.LastSignInAt = &lastSeen
-	user.Status = model.USER_STATUS_ACTIVE
 
-	if err := r.repo.UserRepo.CreateOrUpdate(ctx, user); err != nil {
+	if _, err := r.repo.UserRepo.Create(ctx, user); err != nil {
 		panic(fmt.Sprintf("internal error, can not find token. err : %s", err.Error()))
 	}
 

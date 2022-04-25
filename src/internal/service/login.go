@@ -24,7 +24,7 @@ func NewLoginService(repo *repository.Repository) LoginService {
 }
 
 func (l *login) Login(ctx context.Context, phone, password string, ac *model.Activity) (*Auth, error) {
-	user, err := l.repo.UserRepo.FindByPhone(ctx, phone, model.USER_STATUS_ACTIVE)
+	user, err := l.repo.UserRepo.FindActive(ctx, "phone", phone)
 	if errors.Is(err, app.ErrNotFound) {
 		return nil, errors.New("invalid credentials")
 	}
