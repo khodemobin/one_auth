@@ -7,6 +7,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/khodemobin/pilo/auth/app"
+	"github.com/khodemobin/pilo/auth/internal/repository"
 	"github.com/khodemobin/pilo/auth/pkg/encrypt"
 	"github.com/khodemobin/pilo/auth/pkg/helper"
 )
@@ -30,7 +31,8 @@ func JWTChecker(c *fiber.Ctx) error {
 		return c.Status(http.StatusUnauthorized).JSON(helper.DefaultResponse(nil, "", 0))
 	}
 
-	exists, err := checkBlackList(matches[1])
+	// exists, err := checkBlackList(matches[1])
+	exists, err := repository.NewAccessTokenRepo().ExistsInBlackList(matches[1])
 	if err != nil {
 		panic(err)
 	}

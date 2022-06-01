@@ -1,21 +1,18 @@
 package test_mock
 
 import (
-	"github.com/khodemobin/pilo/auth/internal/config"
-	"github.com/khodemobin/pilo/auth/pkg/cache"
-	"github.com/khodemobin/pilo/auth/pkg/cache/redis"
-	"github.com/khodemobin/pilo/auth/pkg/db"
-	"github.com/khodemobin/pilo/auth/pkg/logger"
-	"github.com/khodemobin/pilo/auth/pkg/logger/syslog"
-	"gorm.io/gorm"
+	"os"
 	"testing"
+
+	"github.com/khodemobin/pilo/auth/app"
+	"github.com/khodemobin/pilo/auth/pkg/cache/redis"
+	"github.com/khodemobin/pilo/auth/pkg/logger/syslog"
 )
 
-func NewMock(t *testing.T) (*gorm.DB, cache.Cache, logger.Logger) {
+func NewMock(t *testing.T) {
+	os.Setenv("APP_ENV", "test")
+	app.New()
 	logger := syslog.New()
-	cfg := config.GetConfig()
-	db := db.New(cfg, logger)
 	redis := redis.NewTest(t, logger)
-
-	return db.DB, redis, logger
+	app.Container.Cache = redis
 }

@@ -11,6 +11,7 @@ import (
 	"github.com/khodemobin/pilo/auth/pkg/helper"
 	"github.com/khodemobin/pilo/auth/pkg/logger"
 	"github.com/khodemobin/pilo/auth/pkg/logger/sentry"
+	"github.com/khodemobin/pilo/auth/pkg/logger/syslog"
 	"github.com/khodemobin/pilo/auth/pkg/logger/zap"
 	redisClient "github.com/khodemobin/pilo/auth/pkg/redis"
 
@@ -26,7 +27,7 @@ type AppContainer struct {
 	Broker broker.Broker
 }
 
-var app *AppContainer = nil
+var Container *AppContainer = nil
 
 func New() {
 	config := config.New()
@@ -34,8 +35,10 @@ func New() {
 	var logger logger.Logger
 	if helper.IsLocal() {
 		logger = zap.New()
+	} else if config.App.Env == "test" {
+		logger = syslog.New()
 	} else {
-		logger = sentry.New(app.Config)
+		logger = sentry.New(Container.Config)
 	}
 
 	broker := rabbit.New(config, logger)
@@ -43,7 +46,7 @@ func New() {
 	rc := redisClient.New(config, logger)
 	cache := redis.New(rc, logger)
 
-	app = &AppContainer{
+	Container = &AppContainer{
 		Config: config,
 		Log:    logger,
 		Broker: broker,
@@ -53,29 +56,29 @@ func New() {
 }
 
 func App() *AppContainer {
-	return app
+	return Container
 }
 
 func Cache() cache.Cache {
-	return app.Cache
+	return Container.Cache
 }
 
 func DB() *gorm.DB {
-	return app.DB
+	return Container.DB
 }
 
 func Redis() *redisDriver.Client {
-	return app.Redis
+	return Container.Redis
 }
 
 func Log() logger.Logger {
-	return app.Log
+	return Container.Log
 }
 
 func Config() *config.Config {
-	return app.Config
+	return Container.Config
 }
 
 func Broker() broker.Broker {
-	return app.Broker
+	return Container.Broker
 }
