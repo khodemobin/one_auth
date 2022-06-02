@@ -13,8 +13,8 @@ type User struct {
 	ID           uint           `gorm:"primarykey" db:"id" faker:"-"`
 	UUID         string         `db:"uuid" faker:"uuid_digit"`
 	Phone        *string        `db:"phone" faker:"phone_number"`
-	Email        *string        `db:"phone" faker:"phone_number"`
-	Username     *string        `db:"phone" faker:"phone_number"`
+	Email        *string        `db:"email" faker:"email"`
+	Username     *string        `db:"username" faker:"username"`
 	Password     *string        `db:"password" faker:"password" `
 	ConfirmedAt  *time.Time     `db:"confirmed_at" faker:"-"`
 	Role         *string        `db:"role" faker:"-"`
