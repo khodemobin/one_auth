@@ -3,7 +3,6 @@ package repository
 import (
 	"context"
 	"errors"
-
 	"github.com/go-redis/redis/v8"
 	"github.com/khodemobin/pilo/auth/app"
 	"github.com/khodemobin/pilo/auth/internal/model"
@@ -11,25 +10,22 @@ import (
 )
 
 type Repository struct {
-	UserRepo        UserRepository
-	TokenRepo       TokenRepository
-	ConfirmCodeRepo ConfirmCodeRepository
-	ActivityRepo    ActivityRepository
-	AccessTokenRepo AccessTokenRepository
+	UserRepo      UserRepository
+	TokenRepo     TokenRepository
+	ActivityRepo  ActivityRepository
+	BlackListRepo BlackListRepository
 }
 
 func NewRepository() *Repository {
 	up := NewUserRepo()
 	tp := NewTokenRepo()
-	cp := NewConfirmCodeRepo()
 	ap := NewActivityRepo()
-	at := NewAccessTokenRepo()
+	blt := NewBlackListRepo()
 	return &Repository{
-		UserRepo:        up,
-		TokenRepo:       tp,
-		ConfirmCodeRepo: cp,
-		ActivityRepo:    ap,
-		AccessTokenRepo: at,
+		UserRepo:      up,
+		TokenRepo:     tp,
+		ActivityRepo:  ap,
+		BlackListRepo: blt,
 	}
 }
 
@@ -37,21 +33,15 @@ type ActivityRepository interface {
 	Create(ac *model.Activity) error
 }
 
-type ConfirmCodeRepository interface {
-	Create(phone string) error
-	Find(phone string) (*model.ConfirmCode, error)
-	Delete(phone string) error
-}
-
 type TokenRepository interface {
 	Create(ctx context.Context, user *model.User) (*model.RefreshToken, error)
 	Find(ctx context.Context, token string) (*model.RefreshToken, error)
-	Revoke(ctx context.Context, token *model.RefreshToken) error
+	Revoke(ctx context.Context, token string) error
 }
 
-type AccessTokenRepository interface {
-	AddToBlacklist(token string) error
-	ExistsInBlackList(token string) (bool, error)
+type BlackListRepository interface {
+	Create(token string) error
+	Exists(token string) (bool, error)
 }
 
 type UserRepository interface {
@@ -62,7 +52,6 @@ type UserRepository interface {
 	Update(ctx context.Context, user *model.User) (*model.User, error)
 	ExistsByPhone(ctx context.Context, phone string) (bool, error)
 	ExistsByID(ctx context.Context, id uint) (bool, error)
-	ExistsByUUID(ctx context.Context, uuid string) (bool, error)
 }
 
 func checkError(err error) error {

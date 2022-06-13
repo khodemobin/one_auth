@@ -2,12 +2,12 @@ package repository_test
 
 import (
 	"context"
+	"github.com/khodemobin/pilo/auth/test"
 	"testing"
 
 	"github.com/khodemobin/pilo/auth/app"
 	"github.com/khodemobin/pilo/auth/internal/model"
 	"github.com/khodemobin/pilo/auth/internal/repository"
-	"github.com/khodemobin/pilo/auth/pkg/test_mock"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -32,7 +32,7 @@ func Test_Repo_CreateToken(t *testing.T) {
 }
 
 func initFakeToken(t *testing.T) *model.User {
-	test_mock.NewMock(t)
+	test.NewMock(t)
 	user, _ := model.User{}.SeedUser()
 	err := app.DB().Create(user).Error
 	assert.NoError(t, err)

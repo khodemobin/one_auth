@@ -5,7 +5,7 @@ import (
 	"github.com/khodemobin/pilo/auth/internal/server/request"
 	"github.com/khodemobin/pilo/auth/internal/service"
 	"github.com/khodemobin/pilo/auth/pkg/helper"
-	"github.com/khodemobin/pilo/auth/pkg/validator"
+	"github.com/khodemobin/pilo/auth/pkg/helper/validator"
 )
 
 type RegisterHandler struct {

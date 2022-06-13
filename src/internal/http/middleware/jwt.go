@@ -2,12 +2,12 @@ package middleware
 
 import (
 	"fmt"
+	"github.com/khodemobin/pilo/auth/internal/repository"
 	"net/http"
 	"regexp"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/khodemobin/pilo/auth/app"
-	"github.com/khodemobin/pilo/auth/internal/repository"
 	"github.com/khodemobin/pilo/auth/pkg/encrypt"
 	"github.com/khodemobin/pilo/auth/pkg/helper"
 )
@@ -32,7 +32,7 @@ func JWTChecker(c *fiber.Ctx) error {
 	}
 
 	// exists, err := checkBlackList(matches[1])
-	exists, err := repository.NewAccessTokenRepo().ExistsInBlackList(matches[1])
+	exists, err := repository.NewBlackListRepo().ExistsInBlackList(matches[1])
 	if err != nil {
 		panic(err)
 	}

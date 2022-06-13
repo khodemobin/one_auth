@@ -1,8 +1,9 @@
-package server
+package http
 
-import "github.com/khodemobin/pilo/auth/internal/server/middleware"
+import "github.com/khodemobin/pilo/auth/internal/http/middleware"
 
 func (r *Server) routing() {
+	//TODO add activity logger middleware
 	api := r.app.Group("/api")
 	v1 := api.Group("/v1")
 

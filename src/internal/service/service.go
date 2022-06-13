@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"github.com/khodemobin/pilo/auth/internal/http/request"
 
 	"github.com/khodemobin/pilo/auth/internal/model"
 	"github.com/khodemobin/pilo/auth/internal/repository"
@@ -15,7 +16,7 @@ type Auth struct {
 }
 
 type Service struct {
-	LoginService    LoginService
+	AuthService     AuthService
 	RegisterService RegisterService
 	UserService     UserService
 	RefreshService  RefreshTokenService
@@ -24,13 +25,13 @@ type Service struct {
 }
 
 func NewService(repo *repository.Repository) *Service {
-	login := NewLoginService(repo)
+	auth := NewAuthService(repo)
 	register := NewRegisterService(repo)
 	user := NewUserService(repo)
 	refresh := NewRefreshTokenService(repo)
 
 	return &Service{
-		LoginService:    login,
+		AuthService:     auth,
 		RegisterService: register,
 		UserService:     user,
 		RefreshService:  refresh,
@@ -38,21 +39,28 @@ func NewService(repo *repository.Repository) *Service {
 	}
 }
 
-type LoginService interface {
-	Login(ctx context.Context, phone, password string, ac *model.Activity) (*Auth, error)
-	Logout(ctx context.Context, accessToken string, token string, ac *model.Activity) error
+type AuthService interface {
+	Login(ctx context.Context, request request.LoginRequest) (*Auth, error)
+	Logout(ctx context.Context, accessToken, token string) error
+	ForgotPassword()
 }
 
-type RegisterService interface {
-	Request(ctx context.Context, phone string, ac *model.Activity) error
-	Verify(ctx context.Context, phone string, code string, ac *model.Activity) (*Auth, error)
+//type RegisterService interface {
+
+//}
+
+type VerifyService interface {
+	Request(ctx context.Context) error
+	Verify(ctx context.Context, phone, code string) (*Auth, error)
 }
 
 type UserService interface {
-	Me(ctx context.Context, uuid string) (*model.User, error)
-	Update(ctx context.Context, uuid string, password string, confirm string, ac *model.Activity) error
+	Me(ctx context.Context, id string) (*model.User, error)
+	Update(ctx context.Context) error
+	Create(ctx context.Context) error
+	Delete(ctx context.Context, uuid, password, confirm string) error
 }
 
 type RefreshTokenService interface {
-	Refresh(ctx context.Context, tokenString string, ac *model.Activity) (*Auth, error)
+	Refresh(ctx context.Context, tokenString string) (*Auth, error)
 }

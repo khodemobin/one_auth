@@ -1,4 +1,4 @@
-package server
+package http
 
 import (
 	"github.com/gofiber/fiber/v2"
@@ -7,7 +7,7 @@ import (
 	fiberLogger "github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/khodemobin/pilo/auth/app"
-	handler "github.com/khodemobin/pilo/auth/internal/server/handler"
+	"github.com/khodemobin/pilo/auth/internal/http/handler"
 	"github.com/khodemobin/pilo/auth/internal/service"
 )
 
@@ -31,7 +31,7 @@ func New(service *service.Service, isLocal bool) *Server {
 			},
 		}),
 		authHandler: handler.AuthHandler{
-			AuthService: service.LoginService,
+			AuthService: service.AuthService,
 		},
 		registerHandler: handler.RegisterHandler{
 			RegisterService: service.RegisterService,

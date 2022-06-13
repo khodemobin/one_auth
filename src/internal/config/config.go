@@ -101,10 +101,3 @@ func readConfig() {
 		log.Println("error load config", err)
 	}
 }
-
-func GetConfig() *Config {
-	if config == nil {
-		New()
-	}
-	return config
-}

@@ -49,7 +49,7 @@ func (u *user) Update(ctx context.Context, uuid string, password string, confirm
 		panic(fmt.Sprintf("internal error, can not encrypt password. err : %s", err.Error()))
 	}
 
-	user.Password = &p
+	user.Password.String = p
 	_, err = u.repo.UserRepo.Update(ctx, user)
 	if err != nil {
 		panic(fmt.Sprintf("internal error, can not update user password from db. err : %s", err.Error()))

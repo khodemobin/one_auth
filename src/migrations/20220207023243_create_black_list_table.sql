@@ -2,15 +2,10 @@
 -- +goose StatementBegin
 SELECT 'up SQL query';
 
-CREATE TABLE `activies`
+CREATE TABLE `black_list`
 (
     `id`         bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-    `action`     varchar(20)         NOT NULL,
-    `ip`         varchar(12)         NULL,
-    `path`       varchar(100)        NULL,
-    `operation`  varchar(100)        NULL,
-    `version`    varchar(10)         NULL,
-    `headers`    text                NULL,
+    `token`      varchar(20)         NOT NULL,
     `created_at` timestamp           NULL,
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
@@ -21,6 +16,6 @@ CREATE TABLE `activies`
 -- +goose StatementBegin
 SELECT 'down SQL query';
 
-DROP TABLE `activies`;
+DROP TABLE `black_list`;
 
 -- +goose StatementEnd

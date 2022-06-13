@@ -12,18 +12,18 @@ func New() logger.Logger {
 	return &syslog{}
 }
 
-func (s *syslog) Error(err error) {
-	log.Println(err.Error())
-}
-
-func (s *syslog) Fatal(err error) {
-	log.Println(err.Error())
-}
-
-func (s *syslog) Warn(msg string) {
+func (s *syslog) Error(msg logger.ErrorType) {
 	log.Println(msg)
 }
 
-func (s *syslog) Info(msg string) {
+func (s *syslog) Fatal(msg logger.ErrorType) {
+	log.Println(msg)
+}
+
+func (s *syslog) Warn(msg logger.ErrorType) {
+	log.Println(msg)
+}
+
+func (s *syslog) Info(msg logger.ErrorType) {
 	log.Println(msg)
 }

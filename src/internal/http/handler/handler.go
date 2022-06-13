@@ -1,12 +1,12 @@
 package handler
 
 import (
+	"github.com/khodemobin/pilo/auth/pkg/helper/user_agent"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/khodemobin/pilo/auth/internal/model"
 	"github.com/khodemobin/pilo/auth/internal/service"
-	"github.com/khodemobin/pilo/auth/pkg/user_agent"
 )
 
 func createActivity(c *fiber.Ctx) *model.Activity {

@@ -7,9 +7,7 @@ import (
 	"time"
 
 	"github.com/khodemobin/pilo/auth/app"
-	"github.com/khodemobin/pilo/auth/internal/model"
 	"github.com/khodemobin/pilo/auth/internal/repository"
-	"github.com/khodemobin/pilo/auth/pkg/test_mock"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -18,12 +16,6 @@ func Test_Repo_Find(t *testing.T) {
 	repo := repository.NewUserRepo()
 	t.Run("test find right user by id", func(t *testing.T) {
 		u, err := repository.NewUserRepo().Find(context.Background(), "id", fmt.Sprint(user.ID))
-		assert.NoError(t, err)
-		assert.Equal(t, u.ID, user.ID)
-	})
-
-	t.Run("test find right user by uuid", func(t *testing.T) {
-		u, err := repo.Find(context.Background(), "uuid", fmt.Sprint(user.UUID))
 		assert.NoError(t, err)
 		assert.Equal(t, u.ID, user.ID)
 	})
@@ -48,21 +40,12 @@ func Test_Repo_UpdateUserLastSeen(t *testing.T) {
 		durationBefore, _ := time.ParseDuration("2m")
 		before := time.Now().Add(durationBefore)
 
-		a := user.LastSignInAt.After(after)
-		b := user.LastSignInAt.Before(before)
+		a := user.LastSignInAt.Time.After(after)
+		b := user.LastSignInAt.Time.Before(before)
 
 		assert.NoError(t, err)
 		assert.True(t, a && b)
 	})
 
 	db.Delete(&user)
-}
-
-func initFakeUser(t *testing.T) *model.User {
-	test_mock.NewMock(t)
-	user, _ := model.User{}.SeedUser()
-	err := app.DB().Create(user).Error
-
-	assert.NoError(t, err)
-	return user
 }

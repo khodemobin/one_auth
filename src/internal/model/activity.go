@@ -1,13 +1,18 @@
 package model
 
+import (
+	"database/sql"
+)
+
 type Activity struct {
-	ID        uint   `gorm:"primarykey" db:"id" faker:"-"`
-	Action    string `db:"action" faker:"-"`
-	IP        string `db:"ip" faker:"-"`
-	Path      string `db:"path" faker:"-"`
-	Operation string `db:"operation" faker:"-"`
-	Version   string `db:"version" faker:"-"`
-	Headers   string `db:"headers" faker:"-"`
+	ID        uint
+	Action    string
+	IP        string
+	Path      string
+	Operation string
+	Version   string
+	Headers   string
+	CreatedAt sql.NullTime `gorm:"autoCreateTime" faker:"-"`
 }
 
 func (Activity) TableName() string {

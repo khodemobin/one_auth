@@ -16,7 +16,7 @@ type login struct {
 	repo *repository.Repository
 }
 
-func NewLoginService(repo *repository.Repository) LoginService {
+func NewAuthService(repo *repository.Repository) AuthService {
 	return &login{
 		repo: repo,
 	}
@@ -32,7 +32,7 @@ func (l *login) Login(ctx context.Context, phone, password string, ac *model.Act
 		panic(fmt.Sprintf("internal error, can find user. err : %s", err.Error()))
 	}
 
-	if !encrypt.Check(*user.Password, password) {
+	if !encrypt.Check(user.Password.String, password) {
 		return nil, errors.New("invalid credentials")
 	}
 
@@ -45,29 +45,32 @@ func (l *login) Login(ctx context.Context, phone, password string, ac *model.Act
 			Token: refreshToken.Token,
 		},
 		ExpiresIn: 3600, // 1 hour
-		ID:        user.UUID,
+		ID:        user.ID,
 	}, nil
 }
 
 func (l *login) Logout(ctx context.Context, accessToken string, token string, ac *model.Activity) error {
 	currentToken, err := l.repo.TokenRepo.Find(ctx, token)
-	if err != nil && !errors.Is(err, app.ErrNotFound) {
+
+	if errors.Is(err, app.ErrNotFound) {
+		return nil
+	}
+
+	if err != nil {
 		panic(fmt.Sprintf("internal error, can not find refresh token from db. err : %s", err.Error()))
 	}
 
 	var wg sync.WaitGroup
-	wg.Add(2)
-	if !errors.Is(err, app.ErrNotFound) {
-		wg.Add(1)
-		go func() {
-			if err := l.repo.TokenRepo.Revoke(ctx, currentToken); err != nil {
-				panic(fmt.Sprintf("internal error, can not delete refresh token from db. err : %s", err.Error()))
-			}
-			wg.Done()
-		}()
-	}
+	wg.Add(3)
 	go func() {
-		if err := l.repo.AccessTokenRepo.AddToBlacklist(accessToken); err != nil {
+		if err := l.repo.TokenRepo.Revoke(ctx, currentToken.Token); err != nil {
+			panic(fmt.Sprintf("internal error, can not delete refresh token from db. err : %s", err.Error()))
+		}
+		wg.Done()
+	}()
+
+	go func() {
+		if err := l.repo.BlackListRepo.Create(accessToken); err != nil {
 			panic(fmt.Sprintf("internal error, can not add access token to blacklist. err : %s", err.Error()))
 		}
 		wg.Done()

@@ -55,7 +55,7 @@ func (r *refresh) Refresh(ctx context.Context, tokenString string, ac *model.Act
 			Token: refreshToken.Token,
 		},
 		ExpiresIn: 3600, // 1 hour
-		ID:        user.UUID,
+		ID:        user.ID,
 	}, nil
 }
 
@@ -69,7 +69,7 @@ func (r *refresh) checkRefreshTokenValid(ctx context.Context, tokenString string
 		panic(fmt.Sprintf("internal error, can not check token exists in db. err : %s", err.Error()))
 	}
 
-	if currentToken.CreatedAt.Add(time.Hour*720).Unix() <= time.Now().Unix() {
+	if currentToken.CreatedAt.Time.Add(time.Hour*720).Unix() <= time.Now().Unix() {
 		r.deleteRefreshToken(ctx, currentToken)
 		return nil, errors.New("invalid refresh token")
 	}
@@ -92,7 +92,7 @@ func (r *refresh) generateToken(ctx context.Context, user *model.User) (*model.R
 }
 
 func (r *refresh) deleteRefreshToken(ctx context.Context, token *model.RefreshToken) {
-	if err := r.repo.TokenRepo.Revoke(ctx, token); err != nil {
+	if err := r.repo.TokenRepo.Revoke(ctx, token.Token); err != nil {
 		panic(fmt.Sprintf("internal error, can not delete refresh token from db. err : %s", err.Error()))
 	}
 }

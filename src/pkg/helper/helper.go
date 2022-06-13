@@ -4,12 +4,11 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"encoding/json"
-
-	"github.com/khodemobin/pilo/auth/internal/config"
+	"os"
 )
 
 func IsLocal() bool {
-	return config.GetConfig().App.Env == "local"
+	return os.Getenv("APP_ENV") == "local"
 }
 
 func ToMD5(s string) string {

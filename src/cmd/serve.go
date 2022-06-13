@@ -10,8 +10,8 @@ import (
 
 	"github.com/khodemobin/pilo/auth/app"
 
+	"github.com/khodemobin/pilo/auth/internal/http"
 	"github.com/khodemobin/pilo/auth/internal/repository"
-	"github.com/khodemobin/pilo/auth/internal/server"
 	"github.com/khodemobin/pilo/auth/internal/service"
 	"github.com/khodemobin/pilo/auth/pkg/helper"
 	"github.com/spf13/cobra"
@@ -33,7 +33,7 @@ func Execute() {
 	service := service.NewService(repository)
 
 	// start server
-	restServer := server.New(service, helper.IsLocal())
+	restServer := http.New(service, helper.IsLocal())
 	go func() {
 		if err := restServer.Start(helper.IsLocal(), app.Config().App.Port); err != nil {
 			msg := fmt.Sprintf("error happen while serving: %v", err)

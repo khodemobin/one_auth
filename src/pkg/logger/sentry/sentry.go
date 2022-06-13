@@ -1,7 +1,7 @@
 package sentry
 
 import (
-	l "log"
+	sysLog "log"
 
 	"github.com/getsentry/sentry-go"
 	"github.com/khodemobin/pilo/auth/internal/config"
@@ -10,46 +10,42 @@ import (
 
 type log struct{}
 
-func New(cfg *config.Config) logger.Logger {
+func New[T string | error](cfg *config.Config) logger.Logger {
 	err := sentry.Init(sentry.ClientOptions{
 		Dsn: cfg.Sentry.Dsn,
 	})
 	if err != nil {
-		l.Fatalf("sentry.Init: %s", err)
+		sysLog.Fatalf("sentry.Init: %s", err)
 	}
 
 	return &log{}
 }
 
-func (l *log) Error(err error) {
-	if err != nil {
-		sentry.WithScope(func(scope *sentry.Scope) {
-			scope.SetLevel(sentry.LevelFatal)
-			sentry.CaptureException(err)
-		})
-	}
-}
-
-func (l *log) Fatal(err error) {
-	if err != nil {
-		sentry.WithScope(func(scope *sentry.Scope) {
-			scope.SetLevel(sentry.LevelFatal)
-			sentry.CaptureException(err)
-		})
-		l.Fatal(err)
-	}
-}
-
-func (l *log) Warn(msg string) {
+func (l *log) Error(msg logger.ErrorType) {
 	sentry.WithScope(func(scope *sentry.Scope) {
-		scope.SetLevel(sentry.LevelWarning)
-		sentry.CaptureMessage(msg)
+		scope.SetLevel(sentry.LevelFatal)
+		sentry.CaptureException(logger.GetError(msg))
 	})
 }
 
-func (l *log) Info(msg string) {
+func (l *log) Fatal(msg logger.ErrorType) {
+	sentry.WithScope(func(scope *sentry.Scope) {
+		scope.SetLevel(sentry.LevelFatal)
+		sentry.CaptureException(logger.GetError(msg))
+	})
+	sysLog.Fatal(msg)
+}
+
+func (l *log) Warn(msg logger.ErrorType) {
+	sentry.WithScope(func(scope *sentry.Scope) {
+		scope.SetLevel(sentry.LevelWarning)
+		sentry.CaptureException(logger.GetError(msg))
+	})
+}
+
+func (l *log) Info(msg logger.ErrorType) {
 	sentry.WithScope(func(scope *sentry.Scope) {
 		scope.SetLevel(sentry.LevelInfo)
-		sentry.CaptureMessage(msg)
+		sentry.CaptureException(logger.GetError(msg))
 	})
 }

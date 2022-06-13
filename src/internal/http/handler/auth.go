@@ -1,17 +1,17 @@
 package handler
 
 import (
+	"github.com/khodemobin/pilo/auth/pkg/helper/validator"
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/khodemobin/pilo/auth/internal/server/request"
+	"github.com/khodemobin/pilo/auth/internal/http/request"
 	"github.com/khodemobin/pilo/auth/internal/service"
 	"github.com/khodemobin/pilo/auth/pkg/helper"
-	"github.com/khodemobin/pilo/auth/pkg/validator"
 )
 
 type AuthHandler struct {
-	AuthService service.LoginService
+	AuthService service.AuthService
 }
 
 func (h *AuthHandler) Login(c *fiber.Ctx) error {
