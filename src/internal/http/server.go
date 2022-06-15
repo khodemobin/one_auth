@@ -12,11 +12,9 @@ import (
 )
 
 type Server struct {
-	app             *fiber.App
-	authHandler     handler.AuthHandler
-	registerHandler handler.RegisterHandler
-	userHandler     handler.UserHandler
-	refreshHandler  handler.RefreshTokenHandler
+	app         *fiber.App
+	authHandler handler.AuthHandler
+	//userHandler    handler.UserHandler
 }
 
 func New(service *service.Service, isLocal bool) *Server {
@@ -33,15 +31,9 @@ func New(service *service.Service, isLocal bool) *Server {
 		authHandler: handler.AuthHandler{
 			AuthService: service.AuthService,
 		},
-		registerHandler: handler.RegisterHandler{
-			RegisterService: service.RegisterService,
-		},
-		userHandler: handler.UserHandler{
-			UserService: service.UserService,
-		},
-		refreshHandler: handler.RefreshTokenHandler{
-			RefreshTokenService: service.RefreshService,
-		},
+		//userHandler: handler.UserHandler{
+		//	UserService: service.UserService,
+		//},
 	}
 }
 

@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"fmt"
+	"github.com/khodemobin/pilo/auth/internal/http/request"
 	"sync"
 
 	"github.com/go-errors/errors"
@@ -22,8 +23,8 @@ func NewAuthService(repo *repository.Repository) AuthService {
 	}
 }
 
-func (l *login) Login(ctx context.Context, phone, password string, ac *model.Activity) (*Auth, error) {
-	user, err := l.repo.UserRepo.FindActive(ctx, "phone", phone)
+func (l *login) Login(ctx context.Context, req request.LoginRequest) (*Auth, error) {
+	user, err := l.repo.UserRepo.FindActive(ctx, "phone", req.Phone)
 	if errors.Is(err, app.ErrNotFound) {
 		return nil, errors.New("invalid credentials")
 	}
@@ -32,12 +33,14 @@ func (l *login) Login(ctx context.Context, phone, password string, ac *model.Act
 		panic(fmt.Sprintf("internal error, can find user. err : %s", err.Error()))
 	}
 
-	if !encrypt.Check(user.Password.String, password) {
+	if !encrypt.Check(user.Password.String, req.Password) {
 		return nil, errors.New("invalid credentials")
 	}
 
 	refreshToken, token := l.generateToken(ctx, user)
-	l.updateUserStatics(ctx, user, ac)
+	if err := l.repo.UserRepo.UpdateLastSeen(ctx, user); err != nil {
+		panic(fmt.Sprintf("internal error, can not update user last seen err : %s", err.Error()))
+	}
 
 	return &Auth{
 		Token: token,
@@ -49,7 +52,7 @@ func (l *login) Login(ctx context.Context, phone, password string, ac *model.Act
 	}, nil
 }
 
-func (l *login) Logout(ctx context.Context, accessToken string, token string, ac *model.Activity) error {
+func (l *login) Logout(ctx context.Context, accessToken string, token string) error {
 	currentToken, err := l.repo.TokenRepo.Find(ctx, token)
 
 	if errors.Is(err, app.ErrNotFound) {
@@ -61,7 +64,7 @@ func (l *login) Logout(ctx context.Context, accessToken string, token string, ac
 	}
 
 	var wg sync.WaitGroup
-	wg.Add(3)
+	wg.Add(2)
 	go func() {
 		if err := l.repo.TokenRepo.Revoke(ctx, currentToken.Token); err != nil {
 			panic(fmt.Sprintf("internal error, can not delete refresh token from db. err : %s", err.Error()))
@@ -75,14 +78,13 @@ func (l *login) Logout(ctx context.Context, accessToken string, token string, ac
 		}
 		wg.Done()
 	}()
-	go func() {
-		if err := l.repo.ActivityRepo.Create(ac); err != nil {
-			panic(fmt.Sprintf("internal error, can not create activity log. err : %s", err.Error()))
-		}
-		wg.Done()
-	}()
 	wg.Wait()
 	return nil
+}
+
+func (l *login) Refresh(ctx context.Context, tokenString string) (*Auth, error) {
+	//TODO implement me
+	panic("implement me")
 }
 
 func (l *login) generateToken(ctx context.Context, user *model.User) (*model.RefreshToken, string) {
@@ -97,25 +99,4 @@ func (l *login) generateToken(ctx context.Context, user *model.User) (*model.Ref
 	}
 
 	return refreshToken, token
-}
-
-func (l *login) updateUserStatics(ctx context.Context, user *model.User, ac *model.Activity) {
-	var wg sync.WaitGroup
-	wg.Add(2)
-
-	go func() {
-		if err := l.repo.UserRepo.UpdateLastSeen(ctx, user); err != nil {
-			panic(fmt.Sprintf("internal error, can not update user last seen err : %s", err.Error()))
-		}
-		wg.Done()
-	}()
-
-	go func() {
-		if err := l.repo.ActivityRepo.Create(ac); err != nil {
-			panic(fmt.Sprintf("internal error, can not create activity log. err : %s", err.Error()))
-		}
-		wg.Done()
-	}()
-
-	wg.Wait()
 }

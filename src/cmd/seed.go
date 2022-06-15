@@ -12,12 +12,10 @@ func SeedCommand() *cobra.Command {
 		Use:   "seed",
 		Short: "Insert fake data to db",
 		Run: func(cmd *cobra.Command, args []string) {
-			phone := "09384642495"
-
 			pass, _ := encrypt.Hash("123456")
 			user, _ := model.User{}.SeedUser()
-			user.Phone = &phone
-			user.Password = &pass
+			user.Phone.String = "09384642495"
+			user.Password.String = pass
 			app.DB().Create(user)
 		},
 	}

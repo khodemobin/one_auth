@@ -33,22 +33,22 @@ func New() logger.Logger {
 	return &log{sugarLogger}
 }
 
-func (log *log) Error(msg logger.ErrorType) {
+func (log *log) Error(msg any) {
 	l.Println(msg)
 	log.zap.Error(msg)
 }
 
-func (log *log) Fatal(msg logger.ErrorType) {
+func (log *log) Fatal(msg any) {
 	l.Println(msg)
 	log.zap.Fatal(msg)
 }
 
-func (log *log) Warn(msg logger.ErrorType) {
+func (log *log) Warn(msg any) {
 	l.Println(msg)
 	log.zap.Warn(msg)
 }
 
-func (log *log) Info(msg logger.ErrorType) {
+func (log *log) Info(msg any) {
 	l.Println(msg)
 	log.zap.Info(msg)
 }

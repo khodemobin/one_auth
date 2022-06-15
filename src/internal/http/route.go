@@ -1,7 +1,5 @@
 package http
 
-import "github.com/khodemobin/pilo/auth/internal/http/middleware"
-
 func (r *Server) routing() {
 	//TODO add activity logger middleware
 	api := r.app.Group("/api")
@@ -9,16 +7,16 @@ func (r *Server) routing() {
 
 	v1.Post("/login", r.authHandler.Login)
 
-	v1.Post("/register", r.registerHandler.Request)
-	v1.Post("/register/verify", r.registerHandler.Verify)
+	//v1.Post("/register", r.registerHandler.Request)
+	//v1.Post("/register/verify", r.registerHandler.Verify)
 
-	v1.Post("/recovery", r.authHandler.Login)
-	v1.Post("/recovery/verify", r.authHandler.Login)
+	//v1.Post("/recovery", r.authHandler.Login)
+	//v1.Post("/recovery/verify", r.authHandler.Login)
 
-	v1.Post("/refresh_token", r.refreshHandler.Refresh)
+	//v1.Post("/refresh_token", r.refreshHandler.Refresh)
 
-	auth := v1.Use(middleware.JWTChecker)
-	auth.Get("/me", r.userHandler.Me)
-	auth.Post("/update", r.userHandler.Update)
-	auth.Post("/logout", r.authHandler.Logout)
+	//auth := v1.Use(middleware.JWTChecker)
+	//auth.Get("/me", r.userHandler)
+	//auth.Post("/update", r.userHandler.Update)
+	//auth.Post("/logout", r.authHandler.Logout)
 }

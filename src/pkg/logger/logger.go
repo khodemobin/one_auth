@@ -5,18 +5,14 @@ import (
 	"fmt"
 )
 
-type ErrorType interface {
-	string | error
-}
-
 type Logger interface {
-	Error(msg ErrorType)
-	Fatal(msg ErrorType)
-	Warn(msg ErrorType)
-	Info(msg ErrorType)
+	Error(msg any)
+	Fatal(msg any)
+	Warn(msg any)
+	Info(msg any)
 }
 
-func GetError(message ErrorType) error {
+func GetError(message any) error {
 	switch msg := message.(type) {
 	case error:
 		return msg

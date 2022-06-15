@@ -5,7 +5,7 @@ import (
 )
 
 type RefreshToken struct {
-	ID        uint `faker:"-"`
+	ID        uint
 	Token     string
 	UserID    string
 	Revoked   bool

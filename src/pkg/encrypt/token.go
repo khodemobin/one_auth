@@ -22,7 +22,7 @@ func GenerateAccessToken(user *model.User) (string, error) {
 	}
 	claims := &jwt.StandardClaims{
 		ExpiresAt: time.Now().Add(time.Second * time.Duration(ttl)).Unix(),
-		Subject:   user.UUID,
+		Subject:   user.ID,
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)

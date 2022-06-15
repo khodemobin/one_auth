@@ -16,51 +16,43 @@ type Auth struct {
 }
 
 type Service struct {
-	AuthService     AuthService
-	RegisterService RegisterService
-	UserService     UserService
-	RefreshService  RefreshTokenService
+	AuthService           AuthService
+	ForgotPasswordService ForgotPasswordService
+	VerifyService         VerifyService
+	UserService           UserService
 
 	Repo *repository.Repository
 }
 
 func NewService(repo *repository.Repository) *Service {
-	auth := NewAuthService(repo)
-	register := NewRegisterService(repo)
-	user := NewUserService(repo)
-	refresh := NewRefreshTokenService(repo)
-
 	return &Service{
-		AuthService:     auth,
-		RegisterService: register,
-		UserService:     user,
-		RefreshService:  refresh,
-		Repo:            repo,
+		AuthService: NewAuthService(repo),
+		//ForgotPasswordService: NewForgotPasswordService(repo),
+		//VerifyService:         NewVerifyService(repo),
+		//UserService:           NewUserService(repo),
+		Repo: repo,
 	}
 }
 
 type AuthService interface {
-	Login(ctx context.Context, request request.LoginRequest) (*Auth, error)
+	Login(ctx context.Context, req request.LoginRequest) (*Auth, error)
 	Logout(ctx context.Context, accessToken, token string) error
-	ForgotPassword()
+	Refresh(ctx context.Context, tokenString string) (*Auth, error)
 }
 
-//type RegisterService interface {
-
-//}
+type ForgotPasswordService interface {
+	Request(ctx context.Context, req request.ForgotPasswordRequest)
+	Confirm(ctx context.Context, req request.ForgotPasswordConfirm)
+}
 
 type VerifyService interface {
-	Request(ctx context.Context) error
-	Verify(ctx context.Context, phone, code string) (*Auth, error)
+	Request(ctx context.Context, req request.VerifyRequest) error
+	Verify(ctx context.Context, req request.VerifyConfirmRequest) (*Auth, error)
 }
 
 type UserService interface {
 	Me(ctx context.Context, id string) (*model.User, error)
-	Update(ctx context.Context) error
-	Create(ctx context.Context) error
-	Delete(ctx context.Context, uuid, password, confirm string) error
-}
-
-type RefreshTokenService interface {
-	Refresh(ctx context.Context, tokenString string) (*Auth, error)
+	Update(ctx context.Context, id string, req request.UserUpdateRequest) error
+	Create(ctx context.Context, req request.UserCreateRequest) error
+	Delete(ctx context.Context, id string) error
 }

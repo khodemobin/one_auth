@@ -15,18 +15,18 @@ type AuthHandler struct {
 }
 
 func (h *AuthHandler) Login(c *fiber.Ctx) error {
-	req := new(request.LoginRequest)
+	var req request.LoginRequest
 
 	if err := c.BodyParser(req); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(helper.DefaultResponse(nil, err.Error(), 0))
 	}
 
-	errors := validator.Check(*req)
+	errors := validator.Check(&req)
 	if errors != nil {
 		return c.Status(fiber.StatusUnprocessableEntity).JSON(errors)
 	}
 
-	auth, err := h.AuthService.Login(c.Context(), req.Phone, req.Password, createActivity(c))
+	auth, err := h.AuthService.Login(c.Context(), req)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(helper.DefaultResponse(nil, err.Error(), 0))
 	}
@@ -42,7 +42,7 @@ func (h *AuthHandler) Logout(c *fiber.Ctx) error {
 	accessToken := splitToken[1]
 	token := c.Cookies("refresh_token")
 
-	err := h.AuthService.Logout(c.Context(), accessToken, token, createActivity(c))
+	err := h.AuthService.Logout(c.Context(), accessToken, token)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(helper.DefaultResponse(nil, err.Error(), 0))
 	}

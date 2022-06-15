@@ -10,7 +10,7 @@ import (
 
 type log struct{}
 
-func New[T string | error](cfg *config.Config) logger.Logger {
+func New(cfg *config.Config) logger.Logger {
 	err := sentry.Init(sentry.ClientOptions{
 		Dsn: cfg.Sentry.Dsn,
 	})
@@ -21,14 +21,14 @@ func New[T string | error](cfg *config.Config) logger.Logger {
 	return &log{}
 }
 
-func (l *log) Error(msg logger.ErrorType) {
+func (l *log) Error(msg any) {
 	sentry.WithScope(func(scope *sentry.Scope) {
 		scope.SetLevel(sentry.LevelFatal)
 		sentry.CaptureException(logger.GetError(msg))
 	})
 }
 
-func (l *log) Fatal(msg logger.ErrorType) {
+func (l *log) Fatal(msg any) {
 	sentry.WithScope(func(scope *sentry.Scope) {
 		scope.SetLevel(sentry.LevelFatal)
 		sentry.CaptureException(logger.GetError(msg))
@@ -36,14 +36,14 @@ func (l *log) Fatal(msg logger.ErrorType) {
 	sysLog.Fatal(msg)
 }
 
-func (l *log) Warn(msg logger.ErrorType) {
+func (l *log) Warn(msg any) {
 	sentry.WithScope(func(scope *sentry.Scope) {
 		scope.SetLevel(sentry.LevelWarning)
 		sentry.CaptureException(logger.GetError(msg))
 	})
 }
 
-func (l *log) Info(msg logger.ErrorType) {
+func (l *log) Info(msg any) {
 	sentry.WithScope(func(scope *sentry.Scope) {
 		scope.SetLevel(sentry.LevelInfo)
 		sentry.CaptureException(logger.GetError(msg))
