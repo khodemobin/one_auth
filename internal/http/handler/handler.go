@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"github.com/khodemobin/pilo/auth/pkg/helper/user_agent"
+	"github.com/khodemobin/pilo/auth/pkg/utils/user_agent"
 	"time"
 
 	"github.com/gofiber/fiber/v2"

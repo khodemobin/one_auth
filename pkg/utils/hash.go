@@ -1,11 +1,11 @@
-package encrypt
+package utils
 
 import (
 	"golang.org/x/crypto/bcrypt"
 )
 
 // Hash generates a hashed password from a plaintext string
-func Hash(text string) (string, error) {
+func MakeHash(text string) (string, error) {
 	pw, err := bcrypt.GenerateFromPassword([]byte(text), bcrypt.DefaultCost)
 	if err != nil {
 		return "", err
@@ -14,7 +14,7 @@ func Hash(text string) (string, error) {
 }
 
 // Check hashed password with plaintext string
-func Check(encryptedPassword string, password string) bool {
+func HashCheck(encryptedPassword string, password string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(encryptedPassword), []byte(password))
 	return err == nil
 }

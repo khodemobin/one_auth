@@ -25,7 +25,7 @@ package handler
 //		})
 //	}
 //
-//	return c.JSON(helper.DefaultResponse("", "", 1))
+//	return c.JSON(utils.DefaultResponse("", "", 1))
 //}
 //
 //func (h *RegisterHandler) Verify(c *fiber.Ctx) error {
@@ -51,5 +51,5 @@ package handler
 //
 //	createLoginCookie(c, auth)
 //
-//	return c.JSON(helper.DefaultResponse(auth, "", 1))
+//	return c.JSON(utils.DefaultResponse(auth, "", 1))
 //}

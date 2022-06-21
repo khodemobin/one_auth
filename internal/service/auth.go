@@ -4,13 +4,14 @@ import (
 	"context"
 	"fmt"
 	"github.com/khodemobin/pilo/auth/internal/http/request"
+	"github.com/khodemobin/pilo/auth/pkg/utils"
+	encrypt2 "github.com/khodemobin/pilo/auth/pkg/utils/encrypt"
 	"sync"
 
 	"github.com/go-errors/errors"
 	"github.com/khodemobin/pilo/auth/app"
 	"github.com/khodemobin/pilo/auth/internal/model"
 	"github.com/khodemobin/pilo/auth/internal/repository"
-	"github.com/khodemobin/pilo/auth/pkg/encrypt"
 )
 
 type login struct {
@@ -33,7 +34,7 @@ func (l *login) Login(ctx context.Context, req request.LoginRequest) (*Auth, err
 		panic(fmt.Sprintf("internal error, can find user. err : %s", err.Error()))
 	}
 
-	if !encrypt.Check(user.Password.String, req.Password) {
+	if !encrypt2.Check(user.Password.String, req.Password) {
 		return nil, errors.New("invalid credentials")
 	}
 
@@ -93,7 +94,7 @@ func (l *login) generateToken(ctx context.Context, user *model.User) (*model.Ref
 		panic(fmt.Sprintf("internal error, can not create token. err : %s", err.Error()))
 	}
 
-	token, err := encrypt.GenerateAccessToken(user)
+	token, err := utils.GenerateAccessToken(user)
 	if err != nil {
 		panic(fmt.Sprintf("internal error, can not create token. err : %s", err.Error()))
 	}

@@ -4,12 +4,12 @@ import (
 	"context"
 	"fmt"
 	"github.com/khodemobin/pilo/auth/internal/http/request"
+	"github.com/khodemobin/pilo/auth/pkg/utils/encrypt"
 
 	"github.com/go-errors/errors"
 	"github.com/khodemobin/pilo/auth/app"
 	"github.com/khodemobin/pilo/auth/internal/model"
 	"github.com/khodemobin/pilo/auth/internal/repository"
-	"github.com/khodemobin/pilo/auth/pkg/encrypt"
 )
 
 type user struct {

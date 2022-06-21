@@ -1,10 +1,10 @@
 package sentry
 
 import (
+	"github.com/khodemobin/pilo/auth/config"
 	sysLog "log"
 
 	"github.com/getsentry/sentry-go"
-	"github.com/khodemobin/pilo/auth/internal/config"
 	"github.com/khodemobin/pilo/auth/pkg/logger"
 )
 

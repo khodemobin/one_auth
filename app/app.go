@@ -1,15 +1,14 @@
 package app
 
 import (
-	"github.com/khodemobin/pilo/auth/internal/config"
+	"github.com/khodemobin/pilo/auth/config"
 	"github.com/khodemobin/pilo/auth/pkg/broker"
-	"github.com/khodemobin/pilo/auth/pkg/broker/rabbit"
-	"github.com/khodemobin/pilo/auth/pkg/db"
-	"github.com/khodemobin/pilo/auth/pkg/helper"
+	"github.com/khodemobin/pilo/auth/pkg/db/mysql"
 	"github.com/khodemobin/pilo/auth/pkg/logger"
 	"github.com/khodemobin/pilo/auth/pkg/logger/sentry"
 	"github.com/khodemobin/pilo/auth/pkg/logger/syslog"
 	"github.com/khodemobin/pilo/auth/pkg/logger/zap"
+	"github.com/khodemobin/pilo/auth/pkg/utils"
 
 	"gorm.io/gorm"
 )
@@ -24,24 +23,27 @@ type AppContainer struct {
 var Container *AppContainer = nil
 
 func New() {
-	config := config.New()
+	cfg := config.New()
 
-	var logger logger.Logger
-	if helper.IsLocal() {
-		logger = zap.New()
-	} else if config.App.Env == "test" {
-		logger = syslog.New()
+	var log logger.Logger
+	if utils.IsLocal() {
+		log = zap.New()
+	} else if cfg.App.Env == "test" {
+		log = syslog.New()
 	} else {
-		logger = sentry.New(Container.Config)
+		log = sentry.New(Container.Config)
 	}
 
-	broker := rabbit.New(config, logger)
-	db := db.New(config, logger).DB
+	rabbit := broker.NewRabbitMQ(cfg)
+	db, err := mysql.New(cfg)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	Container = &AppContainer{
-		Config: config,
-		Log:    logger,
-		Broker: broker,
+		Config: cfg,
+		Log:    log,
+		Broker: rabbit,
 		DB:     db,
 	}
 }

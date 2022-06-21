@@ -4,7 +4,7 @@ import (
 	"context"
 	"github.com/khodemobin/pilo/auth/app"
 	"github.com/khodemobin/pilo/auth/internal/model"
-	"github.com/khodemobin/pilo/auth/pkg/encrypt"
+	"github.com/khodemobin/pilo/auth/pkg/utils"
 )
 
 type token struct{}
@@ -14,7 +14,7 @@ func NewTokenRepo() TokenRepository {
 }
 
 func (token) Create(ctx context.Context, user *model.User) (*model.RefreshToken, error) {
-	token, err := encrypt.SecureToken()
+	token, err := utils.SecureToken()
 	if err != nil {
 		return nil, err
 	}

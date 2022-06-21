@@ -3,7 +3,7 @@ package cmd
 import (
 	"github.com/khodemobin/pilo/auth/app"
 	"github.com/khodemobin/pilo/auth/internal/model"
-	"github.com/khodemobin/pilo/auth/pkg/encrypt"
+	"github.com/khodemobin/pilo/auth/pkg/utils/encrypt"
 	"github.com/spf13/cobra"
 )
 
